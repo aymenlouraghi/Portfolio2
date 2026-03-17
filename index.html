@@ -1178,6 +1178,15 @@ button:focus-visible, input:focus-visible { outline-offset: 0; }
 .odt-preview-doc p {
   margin: 0 0 0.85rem 0;
 }
+.odt-preview-figure {
+  margin: 0 0 1rem 0;
+}
+.odt-preview-figure img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+}
 .doc-viewer-fallback {
   flex: 1;
   display: flex;
@@ -3596,7 +3605,7 @@ function getWindowContent(id) {
           <div class="doc-viewer-toolbar">
             <span class="doc-viewer-title">📄 CV_Aymen_LOURAGHI.pdf</span>
             <div class="doc-viewer-actions">
-              <button class="doc-viewer-btn" onclick="window.open('CV_2026-02-18_Aymen_LOURAGHI.pdf', '_blank')">🔗 Nouvel onglet</button>
+              <button class="doc-viewer-btn" onclick="openDocumentInNewTab('CV_2026-02-18_Aymen_LOURAGHI.pdf', 'CV_Aymen_LOURAGHI.pdf')">🔗 Nouvel onglet</button>
               <button class="doc-viewer-btn primary" onclick="downloadCV()">⬇️ Télécharger</button>
             </div>
           </div>
@@ -3605,7 +3614,7 @@ function getWindowContent(id) {
             <div class="doc-viewer-fallback-icon">📄</div>
             <div class="doc-viewer-fallback-title">CV_Aymen_LOURAGHI.pdf</div>
             <div class="doc-viewer-fallback-text">Le fichier PDF n'a pas pu être affiché dans cette fenêtre.<br>Utilisez les boutons ci-dessus pour l'ouvrir ou le télécharger.</div>
-            <button class="doc-viewer-btn primary" onclick="window.open('CV_2026-02-18_Aymen_LOURAGHI.pdf', '_blank')" style="margin-top:0.5rem;">🔗 Ouvrir dans un nouvel onglet</button>
+            <button class="doc-viewer-btn primary" onclick="openDocumentInNewTab('CV_2026-02-18_Aymen_LOURAGHI.pdf', 'CV_Aymen_LOURAGHI.pdf')" style="margin-top:0.5rem;">🔗 Ouvrir dans un nouvel onglet</button>
           </div>
         </div>
       `
@@ -4079,6 +4088,11 @@ function openCurrentScolariteFile() {
   if (item && item.fileUrl) openDocumentViewer(item);
 }
 
+function openDocViewer(fileUrl, icon = '📄', fileName = '') {
+  const resolvedName = fileName || decodeURIComponent((fileUrl || '').split('/').pop() || 'Document');
+  openDocumentViewer({ fileUrl, icon, name: resolvedName });
+}
+
 let docViewerCounter = 0;
 
 function openDocumentViewer(fileItem) {
@@ -4167,25 +4181,45 @@ function openDocumentViewer(fileItem) {
 }
 
 function openDocumentInNewTab(url, name = '') {
+  const absoluteUrl = new URL(url, window.location.href).href;
   const ext = (name.split('.').pop() || '').toLowerCase();
   const isOfficeLike = ['odt', 'doc', 'docx'].includes(ext);
 
-  if (isOfficeLike) {
+  const openWithAnchor = (targetUrl) => {
+    const a = document.createElement('a');
+    a.href = targetUrl;
+    a.target = '_blank';
+    a.rel = 'noopener noreferrer';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  };
+
+  const isPublicHttp = (() => {
     try {
-      const absoluteUrl = new URL(url, window.location.href).href;
-      const googleViewerUrl = `https://docs.google.com/gview?embedded=1&url=${encodeURIComponent(absoluteUrl)}`;
-      const tab = window.open(googleViewerUrl, '_blank');
-      if (!tab) {
-        window.open(url, '_blank');
-      }
-      return;
+      const parsed = new URL(absoluteUrl);
+      const host = parsed.hostname.toLowerCase();
+      const isHttp = parsed.protocol === 'http:' || parsed.protocol === 'https:';
+      const isLocal = host === 'localhost' || host === '127.0.0.1' || host === '::1' || host.endsWith('.local');
+      return isHttp && !isLocal;
     } catch {
-      window.open(url, '_blank');
+      return false;
+    }
+  })();
+
+  if (isOfficeLike) {
+    if (isPublicHttp) {
+      const googleViewerUrl = `https://docs.google.com/gview?embedded=1&url=${encodeURIComponent(absoluteUrl)}`;
+      openWithAnchor(googleViewerUrl);
       return;
     }
+
+    // En preview locale, Google Viewer ne peut pas accéder au fichier: on ouvre le fichier directement.
+    openWithAnchor(absoluteUrl);
+    return;
   }
 
-  window.open(url, '_blank');
+  openWithAnchor(absoluteUrl);
 }
 
 let jsZipPromise = null;
@@ -4215,6 +4249,20 @@ function escapeHtml(text) {
 async function renderOdtPreview(fileUrl, containerId) {
   const container = document.getElementById(containerId);
   if (!container) return;
+
+  const detectMimeType = (path) => {
+    const ext = (path.split('.').pop() || '').toLowerCase();
+    const mimes = {
+      png: 'image/png',
+      jpg: 'image/jpeg',
+      jpeg: 'image/jpeg',
+      gif: 'image/gif',
+      webp: 'image/webp',
+      svg: 'image/svg+xml'
+    };
+    return mimes[ext] || 'application/octet-stream';
+  };
+
   try {
     await ensureJsZip();
     const response = await fetch(fileUrl);
@@ -4235,12 +4283,30 @@ async function renderOdtPreview(fileUrl, containerId) {
       .map(node => (node.textContent || '').replace(/\s+/g, ' ').trim())
       .filter(Boolean);
 
-    if (!lines.length) {
-      container.innerHTML = `<div class="odt-preview-error">Aucun contenu texte lisible trouvé dans ce document.</div>`;
+    const imageNodes = Array.from(doc.getElementsByTagNameNS('*', 'image'));
+    const imageRefs = [...new Set(
+      imageNodes
+        .map(node => node.getAttributeNS('http://www.w3.org/1999/xlink', 'href') || node.getAttribute('xlink:href') || '')
+        .filter(Boolean)
+        .map(ref => ref.replace(/^\.?\//, ''))
+    )];
+
+    const imageHtmlParts = [];
+    for (const imgRef of imageRefs) {
+      const imageFile = zip.file(imgRef);
+      if (!imageFile) continue;
+      const base64 = await imageFile.async('base64');
+      const mime = detectMimeType(imgRef);
+      imageHtmlParts.push(`<figure class="odt-preview-figure"><img src="data:${mime};base64,${base64}" alt="Illustration du document"></figure>`);
+    }
+
+    if (!lines.length && !imageHtmlParts.length) {
+      container.innerHTML = `<div class="odt-preview-error">Aucun contenu texte ou image lisible trouvé dans ce document.</div>`;
       return;
     }
 
-    container.innerHTML = `<div class="odt-preview-doc">${lines.map(line => `<p>${escapeHtml(line)}</p>`).join('')}</div>`;
+    const textHtml = lines.map(line => `<p>${escapeHtml(line)}</p>`).join('');
+    container.innerHTML = `<div class="odt-preview-doc">${textHtml}${imageHtmlParts.join('')}</div>`;
   } catch (error) {
     container.innerHTML = `<div class="odt-preview-error">Aperçu indisponible pour ce document.<br>Utilisez <strong>Nouvel onglet</strong> ou <strong>Télécharger</strong>.</div>`;
     showNotification('⚠️ Prévisualisation', 'Impossible d’afficher ce fichier en aperçu intégré.');
