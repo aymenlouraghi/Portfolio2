@@ -4185,44 +4185,13 @@ function openDocumentInNewTab(url, name = '') {
   try {
     absoluteUrl = new URL(url, window.location.href).href;
   } catch {
-    window.open(url, '_blank', 'noopener,noreferrer');
-    return;
+    absoluteUrl = url;
   }
 
-  const tab = window.open('about:blank', '_blank');
+  const tab = window.open(absoluteUrl, '_blank');
   if (!tab) {
     showNotification('⚠️ Pop-up bloquée', 'Autorise les pop-ups pour ouvrir le document dans un nouvel onglet.');
-    return;
   }
-  tab.document.write('<!DOCTYPE html><title>Chargement...</title><p style="font-family:Segoe UI,Arial,sans-serif;padding:16px;">Chargement du document...</p>');
-  tab.document.close();
-
-  let finished = false;
-  const fallbackTimeout = setTimeout(() => {
-    if (finished || tab.closed) return;
-    finished = true;
-    tab.location.replace(absoluteUrl);
-  }, 1800);
-
-  fetch(absoluteUrl)
-    .then(res => {
-      if (!res.ok) throw new Error('Erreur réseau');
-      return res.blob();
-    })
-    .then(blob => {
-      if (finished || tab.closed) return;
-      finished = true;
-      clearTimeout(fallbackTimeout);
-      const blobUrl = URL.createObjectURL(blob);
-      tab.location.replace(blobUrl);
-      setTimeout(() => URL.revokeObjectURL(blobUrl), 20000);
-    })
-    .catch(() => {
-      if (finished || tab.closed) return;
-      finished = true;
-      clearTimeout(fallbackTimeout);
-      tab.location.replace(absoluteUrl);
-    });
 }
 
 let jsZipPromise = null;
