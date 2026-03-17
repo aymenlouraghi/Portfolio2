@@ -3605,7 +3605,7 @@ function getWindowContent(id) {
           <div class="doc-viewer-toolbar">
             <span class="doc-viewer-title">📄 CV_Aymen_LOURAGHI.pdf</span>
             <div class="doc-viewer-actions">
-              <button class="doc-viewer-btn" onclick="openDocumentInNewTab('CV_2026-02-18_Aymen_LOURAGHI.pdf', 'CV_Aymen_LOURAGHI.pdf')">🔗 Nouvel onglet</button>
+              <button class="doc-viewer-btn" onclick="return openDocumentInNewTab('CV_2026-02-18_Aymen_LOURAGHI.pdf', 'CV_Aymen_LOURAGHI.pdf', event)">🔗 Nouvel onglet</button>
               <button class="doc-viewer-btn primary" onclick="downloadCV()">⬇️ Télécharger</button>
             </div>
           </div>
@@ -3614,7 +3614,7 @@ function getWindowContent(id) {
             <div class="doc-viewer-fallback-icon">📄</div>
             <div class="doc-viewer-fallback-title">CV_Aymen_LOURAGHI.pdf</div>
             <div class="doc-viewer-fallback-text">Le fichier PDF n'a pas pu être affiché dans cette fenêtre.<br>Utilisez les boutons ci-dessus pour l'ouvrir ou le télécharger.</div>
-            <button class="doc-viewer-btn primary" onclick="openDocumentInNewTab('CV_2026-02-18_Aymen_LOURAGHI.pdf', 'CV_Aymen_LOURAGHI.pdf')" style="margin-top:0.5rem;">🔗 Ouvrir dans un nouvel onglet</button>
+            <button class="doc-viewer-btn primary" onclick="return openDocumentInNewTab('CV_2026-02-18_Aymen_LOURAGHI.pdf', 'CV_Aymen_LOURAGHI.pdf', event)" style="margin-top:0.5rem;">🔗 Ouvrir dans un nouvel onglet</button>
           </div>
         </div>
       `
@@ -4125,7 +4125,7 @@ function openDocumentViewer(fileItem) {
           <div class="doc-viewer-fallback-icon">📄</div>
           <div class="doc-viewer-fallback-title">${fileName}</div>
           <div class="doc-viewer-fallback-text">Le document n'a pas pu être chargé dans l'aperçu intégré.<br>Utilisez <strong>Nouvel onglet</strong> ou <strong>Télécharger</strong>.</div>
-          <button class="doc-viewer-btn primary" onclick="openDocumentInNewTab('${fileUrl}', '${fileName}')" style="margin-top:0.5rem;">🔗 Ouvrir dans un nouvel onglet</button>
+          <button class="doc-viewer-btn primary" onclick="return openDocumentInNewTab('${fileUrl}', '${fileName}', event)" style="margin-top:0.5rem;">🔗 Ouvrir dans un nouvel onglet</button>
         </div>`;
 
   const win = document.createElement('div');
@@ -4156,7 +4156,7 @@ function openDocumentViewer(fileItem) {
         <div class="doc-viewer-toolbar">
           <span class="doc-viewer-title">${icon} ${fileName}</span>
           <div class="doc-viewer-actions">
-            <button class="doc-viewer-btn" onclick="openDocumentInNewTab('${fileUrl}', '${fileName}')">🔗 Nouvel onglet</button>
+            <button class="doc-viewer-btn" onclick="return openDocumentInNewTab('${fileUrl}', '${fileName}', event)">🔗 Nouvel onglet</button>
             <button class="doc-viewer-btn primary" onclick="downloadDoc('${fileUrl}', '${fileName}')">⬇️ Télécharger</button>
           </div>
         </div>
@@ -4180,7 +4180,16 @@ function openDocumentViewer(fileItem) {
   }
 }
 
-function openDocumentInNewTab(url, name = '') {
+let openDocNewTabLockUntil = 0;
+
+function openDocumentInNewTab(url, name = '', evt = null) {
+  if (evt && typeof evt.preventDefault === 'function') evt.preventDefault();
+  if (evt && typeof evt.stopPropagation === 'function') evt.stopPropagation();
+
+  const now = Date.now();
+  if (now < openDocNewTabLockUntil) return false;
+  openDocNewTabLockUntil = now + 600;
+
   let absoluteUrl;
   try {
     absoluteUrl = new URL(url, window.location.href).href;
@@ -4193,13 +4202,14 @@ function openDocumentInNewTab(url, name = '') {
   const isWordLike = ['odt', 'doc', 'docx'].includes(ext);
 
   const targetUrl = isWordLike
-    ? `https://docs.google.com/gview?embedded=1&url=${encodeURIComponent(absoluteUrl)}`
+    ? `https://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(absoluteUrl)}`
     : absoluteUrl;
 
   const tab = window.open(targetUrl, '_blank');
   if (!tab) {
     showNotification('⚠️ Pop-up bloquée', 'Autorise les pop-ups pour ouvrir le document dans un nouvel onglet.');
   }
+  return false;
 }
 
 let jsZipPromise = null;
