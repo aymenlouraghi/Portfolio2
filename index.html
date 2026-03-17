@@ -4189,7 +4189,7 @@ function openDocumentInNewTab(url, name = '') {
     return;
   }
 
-  const tab = window.open('about:blank', '_blank', 'noopener,noreferrer');
+  const tab = window.open('about:blank', '_blank');
   if (!tab) {
     showNotification('⚠️ Pop-up bloquée', 'Autorise les pop-ups pour ouvrir le document dans un nouvel onglet.');
     return;
