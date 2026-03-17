@@ -4188,7 +4188,15 @@ function openDocumentInNewTab(url, name = '') {
     absoluteUrl = url;
   }
 
-  const tab = window.open(absoluteUrl, '_blank');
+  const sourceName = (name || url || '').toLowerCase();
+  const ext = (sourceName.split('.').pop() || '').split('?')[0];
+  const isWordLike = ['odt', 'doc', 'docx'].includes(ext);
+
+  const targetUrl = isWordLike
+    ? `https://docs.google.com/gview?embedded=1&url=${encodeURIComponent(absoluteUrl)}`
+    : absoluteUrl;
+
+  const tab = window.open(targetUrl, '_blank');
   if (!tab) {
     showNotification('⚠️ Pop-up bloquée', 'Autorise les pop-ups pour ouvrir le document dans un nouvel onglet.');
   }
