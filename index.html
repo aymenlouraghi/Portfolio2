@@ -2327,7 +2327,7 @@ button:focus-visible, input:focus-visible { outline-offset: 0; }
   background: radial-gradient(circle at 35% 30%, #fff176 0%, #fdd835 45%, #f9a825 100%);
   position: relative;
   box-shadow: 0 0 45px rgba(255,214,0,0.45);
-  animation: sdLogoBounce 0.55s ease-in-out infinite;
+  animation: sdLogoBounce 0.5s ease-in-out infinite;
 }
 .sd-mock-eye {
   position: absolute;
@@ -2339,17 +2339,34 @@ button:focus-visible, input:focus-visible { outline-offset: 0; }
 }
 .sd-mock-eye.left { left: 28%; }
 .sd-mock-eye.right { right: 28%; }
+.sd-mock-eyebrow {
+  position: absolute;
+  width: 18%;
+  height: 7%;
+  border-radius: 999px;
+  background: #2c2c2c;
+  top: 24%;
+}
+.sd-mock-eyebrow.left {
+  left: 24%;
+  transform: rotate(-14deg);
+}
+.sd-mock-eyebrow.right {
+  right: 24%;
+  transform: rotate(14deg);
+}
 .sd-mock-mouth {
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
-  bottom: 22%;
+  bottom: 20%;
   width: 48%;
-  height: 9%;
+  height: 10%;
   border-radius: 0 0 90px 90px;
   background: #1a1a1a;
   overflow: hidden;
-  animation: sdLaughMouth 0.22s steps(2, end) infinite;
+  transform-origin: center top;
+  animation: sdLaughMouth 0.2s steps(2, end) infinite;
 }
 .sd-mock-tongue {
   position: absolute;
@@ -2361,6 +2378,67 @@ button:focus-visible, input:focus-visible { outline-offset: 0; }
   border-radius: 50% 50% 0 0;
   background: #ff6f91;
   opacity: 0.85;
+}
+.sd-mock-tear {
+  position: absolute;
+  width: 9%;
+  height: 14%;
+  background: linear-gradient(180deg, #b3ecff, #58c4ff);
+  border-radius: 50% 50% 60% 60%;
+  top: 44%;
+  opacity: 0.9;
+  animation: sdTearDrop 0.8s ease-in infinite;
+}
+.sd-mock-tear.left {
+  left: 18%;
+  animation-delay: 0.08s;
+}
+.sd-mock-tear.right {
+  right: 18%;
+  animation-delay: 0.42s;
+}
+.sd-mock-arm {
+  position: absolute;
+  right: -12%;
+  top: 53%;
+  width: 56%;
+  height: 17%;
+  background: linear-gradient(180deg, #ffd54f, #ffca28);
+  border-radius: 999px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.26);
+  transform-origin: 10% 50%;
+  animation: sdPointArm 0.42s ease-in-out infinite;
+}
+.sd-mock-hand {
+  position: absolute;
+  right: -8%;
+  top: -30%;
+  width: 38%;
+  height: 160%;
+  border-radius: 44% 44% 48% 48%;
+  background: linear-gradient(180deg, #ffe082, #ffd54f);
+  box-shadow: inset -3px -2px 0 rgba(0,0,0,0.08);
+}
+.sd-mock-finger {
+  position: absolute;
+  right: -72%;
+  top: 34%;
+  width: 78%;
+  height: 30%;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #ffe082, #ffd54f);
+  transform: rotate(-8deg);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+.sd-mock-finger::after {
+  content: '';
+  position: absolute;
+  right: -7%;
+  top: 12%;
+  width: 18%;
+  height: 76%;
+  border-radius: 999px;
+  background: #ffd54f;
 }
 .sd-mock-title {
   font-size: clamp(1.4rem, 4vw, 2.5rem);
@@ -2387,12 +2465,21 @@ button:focus-visible, input:focus-visible { outline-offset: 0; }
 }
 @keyframes sdLogoBounce {
   0%, 100% { transform: translateY(0) rotate(0deg); }
-  25% { transform: translateY(-3px) rotate(-0.8deg); }
-  75% { transform: translateY(2px) rotate(0.8deg); }
+  25% { transform: translateY(-4px) rotate(-1.2deg); }
+  75% { transform: translateY(3px) rotate(1.1deg); }
 }
 @keyframes sdLaughMouth {
-  0%, 100% { height: 9%; border-radius: 0 0 90px 90px; }
-  50% { height: 30%; border-radius: 0 0 70px 70px; }
+  0%, 100% { height: 10%; border-radius: 0 0 90px 90px; transform: translateX(-50%) scaleY(0.65); }
+  50% { height: 34%; border-radius: 0 0 70px 70px; transform: translateX(-50%) scaleY(1); }
+}
+@keyframes sdTearDrop {
+  0% { transform: translateY(0) scale(0.95); opacity: 0.3; }
+  40% { opacity: 1; }
+  100% { transform: translateY(18px) scale(1); opacity: 0; }
+}
+@keyframes sdPointArm {
+  0%, 100% { transform: rotate(-6deg) translateX(0); }
+  50% { transform: rotate(-12deg) translateX(8px); }
 }
 
 /* --- Nuclear Flash --- */
@@ -3206,11 +3293,19 @@ button:focus-visible, input:focus-visible { outline-offset: 0; }
 <div class="sd-mock" id="sdMock">
   <div class="sd-mock-wrap">
     <div class="sd-mock-logo" aria-hidden="true">
+      <div class="sd-mock-eyebrow left"></div>
+      <div class="sd-mock-eyebrow right"></div>
       <div class="sd-mock-eye left"></div>
       <div class="sd-mock-eye right"></div>
+      <div class="sd-mock-tear left"></div>
+      <div class="sd-mock-tear right"></div>
       <div class="sd-mock-mouth"><div class="sd-mock-tongue"></div></div>
+      <div class="sd-mock-arm">
+        <div class="sd-mock-hand"></div>
+        <div class="sd-mock-finger"></div>
+      </div>
     </div>
-    <div class="sd-mock-title">Tu as vraiment clique ?</div>
+    <div class="sd-mock-title">Tu as vraiment cliqué HAHAHA ?</div>
     <div class="sd-mock-sub">Simulation terminee. Le smiley rigole, mais ton portfolio est intact.</div>
   </div>
 </div>
