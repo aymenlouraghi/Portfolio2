@@ -2218,6 +2218,183 @@ button:focus-visible, input:focus-visible { outline-offset: 0; }
 }
 @keyframes sdBlink { 50% { opacity:0; } }
 
+/* --- Fake CMD Backdrop --- */
+.sd-cmd {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%) scale(0.96);
+  width: min(900px, 92vw);
+  height: min(460px, 65vh);
+  z-index: 100003;
+  display: none;
+  flex-direction: column;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.18);
+  box-shadow: 0 24px 80px rgba(0,0,0,0.65);
+  overflow: hidden;
+  background: #0b0b0b;
+}
+.sd-cmd.active {
+  display: flex;
+  animation: sdCmdIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.sd-cmd-top {
+  height: 34px;
+  background: linear-gradient(180deg, #2f2f2f, #1f1f1f);
+  border-bottom: 1px solid rgba(255,255,255,0.14);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 12px;
+  color: #e6e6e6;
+  font-size: 0.76rem;
+  font-family: var(--font-mono);
+}
+.sd-cmd-controls {
+  display: flex;
+  gap: 7px;
+}
+.sd-cmd-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  opacity: 0.85;
+}
+.sd-cmd-dot.red { background: #ff5f57; }
+.sd-cmd-dot.yellow { background: #ffbd2e; }
+.sd-cmd-dot.green { background: #28ca42; }
+.sd-cmd-body {
+  flex: 1;
+  background: #050505;
+  color: #7cff7c;
+  font-family: var(--font-mono);
+  font-size: clamp(0.72rem, 1vw, 0.85rem);
+  line-height: 1.5;
+  padding: 12px 14px;
+  overflow: hidden;
+  position: relative;
+}
+.sd-cmd-line {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  opacity: 0;
+  animation: sdCmdLine 0.22s ease forwards;
+}
+.sd-cmd-line.warn { color: #ffe082; }
+.sd-cmd-line.danger { color: #ff8a80; }
+.sd-cmd-line.ok { color: #64ffda; }
+.sd-cmd-scan {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -60px;
+  height: 60px;
+  background: linear-gradient(180deg, rgba(0,255,120,0), rgba(0,255,120,0.09), rgba(0,255,120,0));
+  animation: sdCmdScan 2.2s linear infinite;
+  pointer-events: none;
+}
+
+/* --- Mocking End Screen --- */
+.sd-mock {
+  position: fixed;
+  inset: 0;
+  z-index: 1000002;
+  background: radial-gradient(circle at 50% 35%, #121212 0%, #040404 55%, #000 100%);
+  color: #fff;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 24px;
+}
+.sd-mock.active { display: flex; }
+.sd-mock-wrap {
+  width: min(760px, 96vw);
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 18px;
+  background: rgba(16,16,16,0.84);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 25px 80px rgba(0,0,0,0.65);
+  padding: clamp(20px, 4vw, 44px);
+}
+.sd-mock-logo {
+  width: clamp(120px, 22vw, 190px);
+  aspect-ratio: 1;
+  margin: 0 auto 20px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fff176 0%, #fdd835 45%, #f9a825 100%);
+  position: relative;
+  box-shadow: 0 0 45px rgba(255,214,0,0.45);
+  animation: sdLogoBounce 0.55s ease-in-out infinite;
+}
+.sd-mock-eye {
+  position: absolute;
+  width: 13%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: #1a1a1a;
+  top: 34%;
+}
+.sd-mock-eye.left { left: 28%; }
+.sd-mock-eye.right { right: 28%; }
+.sd-mock-mouth {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 22%;
+  width: 48%;
+  height: 9%;
+  border-radius: 0 0 90px 90px;
+  background: #1a1a1a;
+  overflow: hidden;
+  animation: sdLaughMouth 0.22s steps(2, end) infinite;
+}
+.sd-mock-tongue {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: -30%;
+  width: 60%;
+  height: 70%;
+  border-radius: 50% 50% 0 0;
+  background: #ff6f91;
+  opacity: 0.85;
+}
+.sd-mock-title {
+  font-size: clamp(1.4rem, 4vw, 2.5rem);
+  font-weight: 900;
+  letter-spacing: 1.5px;
+  margin-bottom: 8px;
+}
+.sd-mock-sub {
+  font-size: clamp(0.9rem, 1.6vw, 1.1rem);
+  color: rgba(255,255,255,0.8);
+}
+
+@keyframes sdCmdIn {
+  from { opacity: 0; transform: translate(-50%, -48%) scale(0.94); }
+  to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+@keyframes sdCmdLine {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes sdCmdScan {
+  from { top: -60px; }
+  to { top: 100%; }
+}
+@keyframes sdLogoBounce {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  25% { transform: translateY(-3px) rotate(-0.8deg); }
+  75% { transform: translateY(2px) rotate(0.8deg); }
+}
+@keyframes sdLaughMouth {
+  0%, 100% { height: 9%; border-radius: 0 0 90px 90px; }
+  50% { height: 30%; border-radius: 0 0 70px 70px; }
+}
+
 /* --- Nuclear Flash --- */
 .sd-flash {
   position:fixed; inset:0;
@@ -3012,7 +3189,31 @@ button:focus-visible, input:focus-visible { outline-offset: 0; }
   </div>
   <div class="sd-bsod-percent" id="sdBsodPercent"><span class="sd-bsod-spinner"></span>0% complete</div>
 </div>
+<div class="sd-cmd" id="sdCmd" aria-hidden="true">
+  <div class="sd-cmd-top">
+    <span>C:\\Windows\\System32\\cmd.exe</span>
+    <div class="sd-cmd-controls">
+      <span class="sd-cmd-dot red"></span>
+      <span class="sd-cmd-dot yellow"></span>
+      <span class="sd-cmd-dot green"></span>
+    </div>
+  </div>
+  <div class="sd-cmd-body" id="sdCmdBody">
+    <div class="sd-cmd-scan"></div>
+  </div>
+</div>
 <div class="sd-reboot" id="sdReboot"><div id="sdRebootText"></div></div>
+<div class="sd-mock" id="sdMock">
+  <div class="sd-mock-wrap">
+    <div class="sd-mock-logo" aria-hidden="true">
+      <div class="sd-mock-eye left"></div>
+      <div class="sd-mock-eye right"></div>
+      <div class="sd-mock-mouth"><div class="sd-mock-tongue"></div></div>
+    </div>
+    <div class="sd-mock-title">Tu as vraiment clique ?</div>
+    <div class="sd-mock-sub">Simulation terminee. Le smiley rigole, mais ton portfolio est intact.</div>
+  </div>
+</div>
 <div class="sd-flash" id="sdFlash"></div>
 
 <!-- ========== NOTIFICATION ========== -->
@@ -5567,809 +5768,172 @@ function triggerIntrusionShowcase() {
   if (state.selfDestructActive) return;
   state.selfDestructActive = true;
 
-  let defenseScore = 0;
-  let threatLevel = 99;
-  let counterActions = 0;
-  let matrixRunning = false;
-  let fireInterval = null;
-  let streamInterval = null;
-  let chartInterval = null;
-  let pulseInterval = null;
   let cleanupDone = false;
-  let frameNoise = 0;
-
-  const runtimeTimers = [];
-  const runtimeIntervals = [];
-  const runtimeFrames = [];
-
-  function later(fn, ms) {
-    const id = setTimeout(fn, ms);
-    runtimeTimers.push(id);
-    return id;
-  }
-
-  function every(fn, ms) {
-    const id = setInterval(fn, ms);
-    runtimeIntervals.push(id);
-    return id;
-  }
-
-  function raf(fn) {
-    const id = requestAnimationFrame(fn);
-    runtimeFrames.push(id);
-    return id;
-  }
+  const timeouts = [];
+  const intervals = [];
 
   const refs = {
     overlay: document.getElementById('sdOverlay'),
     warning: document.getElementById('sdWarning'),
-    countdown: document.getElementById('sdCountdown'),
-    progress: document.getElementById('sdProgress'),
-    defenseScoreEl: document.getElementById('sdDefenseScore'),
-    threatLevelEl: document.getElementById('sdThreatLevel'),
-    containBtn: document.getElementById('sdContainBtn'),
-    containMeterFill: document.getElementById('sdContainMeterFill'),
+    bsod: document.getElementById('sdBsod'),
+    bsodPercent: document.getElementById('sdBsodPercent'),
+    reboot: document.getElementById('sdReboot'),
+    cmd: document.getElementById('sdCmd'),
+    cmdBody: document.getElementById('sdCmdBody'),
+    mock: document.getElementById('sdMock'),
     glitchLayer: document.getElementById('sdGlitchLayer'),
     glitchText: document.getElementById('sdGlitchText'),
     matrixCanvas: document.getElementById('sdMatrixCanvas'),
     fireContainer: document.getElementById('fireParticles'),
     blackhole: document.getElementById('sdBlackhole'),
     bhRing: document.getElementById('sdBlackholeRing'),
-    bsod: document.getElementById('sdBsod'),
-    bsodPercent: document.getElementById('sdBsodPercent'),
-    reboot: document.getElementById('sdReboot'),
-    rebootText: document.getElementById('sdRebootText'),
     flash: document.getElementById('sdFlash')
   };
 
-  const required = [
-    refs.warning, refs.countdown, refs.progress, refs.defenseScoreEl, refs.threatLevelEl,
-    refs.containBtn, refs.containMeterFill, refs.glitchLayer, refs.glitchText,
-    refs.matrixCanvas, refs.fireContainer, refs.blackhole, refs.bhRing,
-    refs.bsod, refs.bsodPercent, refs.reboot, refs.rebootText, refs.flash
-  ];
-
+  const required = [refs.overlay, refs.bsod, refs.bsodPercent, refs.cmd, refs.cmdBody, refs.mock];
   if (required.some(el => !el)) {
     state.selfDestructActive = false;
     return;
   }
 
+  function later(fn, delay) {
+    const id = setTimeout(fn, delay);
+    timeouts.push(id);
+    return id;
+  }
+
+  function every(fn, delay) {
+    const id = setInterval(fn, delay);
+    intervals.push(id);
+    return id;
+  }
+
   const AudioCtx = window.AudioContext || window.webkitAudioContext;
-  const actx = AudioCtx ? new AudioCtx() : null;
+  const audioCtx = AudioCtx ? new AudioCtx() : null;
 
-  function playAlarm(duration) {
-    if (!actx) return;
-    const osc = actx.createOscillator();
-    const gain = actx.createGain();
-    osc.type = 'sawtooth';
-    osc.frequency.setValueAtTime(760, actx.currentTime);
-    gain.gain.setValueAtTime(0.0001, actx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.12, actx.currentTime + 0.05);
-    osc.connect(gain).connect(actx.destination);
+  function beep(freq, duration, volume) {
+    if (!audioCtx || audioCtx.state === 'closed') return;
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = 'square';
+    osc.frequency.value = freq;
+    gain.gain.value = volume;
+    osc.connect(gain).connect(audioCtx.destination);
     osc.start();
-
-    const lfo = every(() => {
-      if (!actx || actx.state === 'closed') return;
-      const base = 580 + Math.random() * 360;
-      osc.frequency.setTargetAtTime(base, actx.currentTime, 0.04);
-    }, 180);
-
-    later(() => {
-      clearInterval(lfo);
-      gain.gain.exponentialRampToValueAtTime(0.0001, actx.currentTime + 0.25);
-      osc.stop(actx.currentTime + 0.25);
-    }, duration);
+    osc.stop(audioCtx.currentTime + duration);
   }
 
-  function playImpact(duration, gainValue) {
-    if (!actx) return;
-    const noiseBuffer = actx.createBuffer(1, Math.floor(actx.sampleRate * duration), actx.sampleRate);
-    const data = noiseBuffer.getChannelData(0);
-    for (let i = 0; i < data.length; i++) {
-      data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / data.length, 1.6);
-    }
-    const src = actx.createBufferSource();
-    src.buffer = noiseBuffer;
-    const filter = actx.createBiquadFilter();
-    filter.type = 'bandpass';
-    filter.frequency.value = 120 + Math.random() * 280;
-    const gain = actx.createGain();
-    gain.gain.setValueAtTime(gainValue, actx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.0001, actx.currentTime + duration);
-    src.connect(filter).connect(gain).connect(actx.destination);
-    src.start();
-  }
-
-  function playBootBeep() {
-    if (!actx) return;
-    const osc = actx.createOscillator();
-    const gain = actx.createGain();
-    osc.type = 'triangle';
-    osc.frequency.setValueAtTime(700 + Math.random() * 300, actx.currentTime);
-    gain.gain.setValueAtTime(0.0001, actx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.08, actx.currentTime + 0.02);
-    gain.gain.exponentialRampToValueAtTime(0.0001, actx.currentTime + 0.16);
-    osc.connect(gain).connect(actx.destination);
-    osc.start();
-    osc.stop(actx.currentTime + 0.18);
-  }
-
-  function updateDefenseHud() {
-    refs.defenseScoreEl.textContent = String(defenseScore);
-    refs.threatLevelEl.textContent = `${Math.max(1, threatLevel)}%`;
-    refs.containMeterFill.style.width = `${Math.min(100, defenseScore)}%`;
-    refs.containMeterFill.style.filter = `hue-rotate(${Math.max(0, 120 - defenseScore)}deg)`;
-  }
-
-  function updateDynamicOverlayTint() {
-    frameNoise = (frameNoise + 1) % 360;
-    const red = 180 + Math.floor(Math.sin(frameNoise * 0.05) * 45);
-    const blue = 180 + Math.floor(Math.cos(frameNoise * 0.03) * 55);
-    refs.overlay.style.background = `radial-gradient(circle at 50% 50%, rgba(${red},20,20,0.12), rgba(0,0,0,0.1) 45%, rgba(0,0,0,0.28))`;
-  }
-
-  const cinematicLayer = document.createElement('div');
-  cinematicLayer.id = 'sdCinematicLayer';
-  cinematicLayer.style.cssText = [
-    'position:fixed',
-    'inset:0',
-    'z-index:100002',
-    'pointer-events:none',
-    'opacity:0',
-    'transition:opacity 0.35s ease',
-    'mix-blend-mode:screen'
-  ].join(';');
-
-  const commandStream = document.createElement('div');
-  commandStream.style.cssText = [
-    'position:absolute',
-    'right:22px',
-    'top:22px',
-    'width:min(520px,42vw)',
-    'height:min(310px,36vh)',
-    'overflow:hidden',
-    'border:1px solid rgba(0,212,255,0.35)',
-    'border-radius:12px',
-    'background:linear-gradient(150deg,rgba(0,6,20,0.88),rgba(11,3,25,0.82))',
-    'box-shadow:0 16px 50px rgba(0,0,0,0.45)',
-    'backdrop-filter:blur(8px)',
-    'padding:12px 14px',
-    'font-family:var(--font-mono)',
-    'font-size:12px',
-    'line-height:1.45',
-    'color:#7df9ff',
-    'letter-spacing:0.2px'
-  ].join(';');
-
-  const commandHeader = document.createElement('div');
-  commandHeader.textContent = 'THREAT ORCHESTRATOR // LIVE TELEMETRY';
-  commandHeader.style.cssText = 'font-size:11px;color:#fff;opacity:0.82;margin-bottom:8px;letter-spacing:1.2px;font-weight:700;';
-  commandStream.appendChild(commandHeader);
-
-  const commandBody = document.createElement('div');
-  commandBody.style.cssText = 'height:calc(100% - 26px);overflow:hidden;';
-  commandStream.appendChild(commandBody);
-
-  const radar = document.createElement('div');
-  radar.style.cssText = [
-    'position:absolute',
-    'left:24px',
-    'top:20px',
-    'width:min(340px,34vw)',
-    'aspect-ratio:1',
-    'border-radius:50%',
-    'background:radial-gradient(circle,rgba(0,255,170,0.14),rgba(0,20,8,0.8) 55%,rgba(0,0,0,0.95))',
-    'border:1px solid rgba(0,255,136,0.35)',
-    'box-shadow:0 0 35px rgba(0,255,136,0.2), inset 0 0 26px rgba(0,255,136,0.12)',
-    'overflow:hidden'
-  ].join(';');
-
-  const sweep = document.createElement('div');
-  sweep.style.cssText = [
-    'position:absolute',
-    'inset:-1px',
-    'border-radius:50%',
-    'background:conic-gradient(from 0deg, rgba(0,255,136,0), rgba(0,255,136,0.55), rgba(0,255,136,0))',
-    'animation:sdRadarSweep 2.6s linear infinite'
-  ].join(';');
-  radar.appendChild(sweep);
-
-  const radarGrid = document.createElement('div');
-  radarGrid.style.cssText = [
-    'position:absolute',
-    'inset:0',
-    'background:',
-    'radial-gradient(circle,transparent 19%,rgba(0,255,136,0.15) 20%,transparent 21%,transparent 39%,rgba(0,255,136,0.12) 40%,transparent 41%,transparent 59%,rgba(0,255,136,0.1) 60%,transparent 61%),',
-    'linear-gradient(0deg,transparent 49.5%,rgba(0,255,136,0.15) 50%,transparent 50.5%),',
-    'linear-gradient(90deg,transparent 49.5%,rgba(0,255,136,0.15) 50%,transparent 50.5%)'
-  ].join('');
-  radar.appendChild(radarGrid);
-
-  const metricPanel = document.createElement('div');
-  metricPanel.style.cssText = [
-    'position:absolute',
-    'left:24px',
-    'bottom:28px',
-    'width:min(360px,36vw)',
-    'height:120px',
-    'background:rgba(6,14,35,0.74)',
-    'border:1px solid rgba(125,249,255,0.28)',
-    'border-radius:12px',
-    'padding:10px 14px',
-    'box-shadow:0 8px 28px rgba(0,0,0,0.28)',
-    'font-family:var(--font-mono)',
-    'color:#d2f8ff',
-    'font-size:12px',
-    'line-height:1.4'
-  ].join(';');
-
-  const metricTitle = document.createElement('div');
-  metricTitle.textContent = 'DEFENSE MATRIX';
-  metricTitle.style.cssText = 'font-size:11px;letter-spacing:1px;color:#9de6ff;opacity:0.9;margin-bottom:8px;';
-  metricPanel.appendChild(metricTitle);
-
-  const metricCanvas = document.createElement('canvas');
-  metricCanvas.width = 500;
-  metricCanvas.height = 72;
-  metricCanvas.style.cssText = 'width:100%;height:72px;display:block;';
-  metricPanel.appendChild(metricCanvas);
-
-  cinematicLayer.appendChild(commandStream);
-  cinematicLayer.appendChild(radar);
-  cinematicLayer.appendChild(metricPanel);
-  document.body.appendChild(cinematicLayer);
-
-  if (!document.getElementById('sdCinematicStyle')) {
-    const style = document.createElement('style');
-    style.id = 'sdCinematicStyle';
-    style.textContent = `
-      @keyframes sdRadarSweep { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-      @keyframes sdPulseNode { 0% { transform: scale(0.5); opacity: 0.9; } 100% { transform: scale(2.6); opacity: 0; } }
-      @keyframes sdTelemetryIn { from { transform: translateX(30px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-      @keyframes sdTelemetryOut { from { opacity: 1; } to { opacity: 0; } }
-    `;
-    document.head.appendChild(style);
-  }
-
-  const mCtx = refs.matrixCanvas.getContext('2d');
-  refs.matrixCanvas.width = window.innerWidth;
-  refs.matrixCanvas.height = window.innerHeight;
-  let matrixColumns = Math.floor(refs.matrixCanvas.width / 16);
-  let matrixDrops = Array(matrixColumns).fill(1);
-  const matrixChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*+-=[]{}<>?/<~!%&ﾊﾐﾋｳｼﾅﾓﾆｻﾜﾂｵﾘｱﾎﾃﾏｹﾒｴｶｷﾑﾕﾗｾﾈｽﾀﾇﾍ';
-
-  function onResize() {
-    refs.matrixCanvas.width = window.innerWidth;
-    refs.matrixCanvas.height = window.innerHeight;
-    matrixColumns = Math.floor(refs.matrixCanvas.width / 16);
-    matrixDrops = Array(matrixColumns).fill(1);
-  }
-
-  window.addEventListener('resize', onResize);
-
-  function drawMatrix() {
-    if (!matrixRunning) return;
-    mCtx.fillStyle = 'rgba(0,0,0,0.07)';
-    mCtx.fillRect(0, 0, refs.matrixCanvas.width, refs.matrixCanvas.height);
-    mCtx.font = '14px monospace';
-    for (let i = 0; i < matrixDrops.length; i++) {
-      const x = i * 16;
-      const y = matrixDrops[i] * 16;
-      const char = matrixChars[Math.floor(Math.random() * matrixChars.length)];
-      const hue = Math.max(0, 120 - defenseScore * 0.7 + (Math.random() * 30 - 15));
-      mCtx.fillStyle = Math.random() > 0.93 ? '#ffffff' : `hsla(${hue}, 100%, 55%, 0.95)`;
-      mCtx.fillText(char, x, y);
-      if (y > refs.matrixCanvas.height && Math.random() > 0.97) matrixDrops[i] = 0;
-      matrixDrops[i]++;
-    }
-    raf(drawMatrix);
-  }
-
-  const firePalette = ['#ff1744', '#ff5e00', '#ff9100', '#ffd740', '#f50057', '#651fff'];
-
-  function startFire(intensity) {
-    stopFire();
-    fireInterval = every(() => {
-      for (let i = 0; i < intensity; i++) {
-        const p = document.createElement('div');
-        p.className = 'fire-particle';
-        p.style.left = `${Math.random() * 100}%`;
-        p.style.bottom = `${Math.random() * 15 - 5}%`;
-        p.style.background = firePalette[Math.floor(Math.random() * firePalette.length)];
-        const size = 4 + Math.random() * 16;
-        p.style.width = `${size}px`;
-        p.style.height = `${size}px`;
-        p.style.animationDuration = `${0.45 + Math.random() * 1.1}s`;
-        p.style.filter = `blur(${Math.random() * 1.8}px)`;
-        refs.fireContainer.appendChild(p);
-        later(() => p.remove(), 1900);
-      }
-    }, 26);
-  }
-
-  function stopFire() {
-    if (fireInterval) clearInterval(fireInterval);
-    fireInterval = null;
-    refs.fireContainer.innerHTML = '';
-  }
-
-  function pushTelemetry(text, color) {
-    const line = document.createElement('div');
-    line.textContent = text;
-    line.style.cssText = [
-      'opacity:0.95',
-      'margin-bottom:3px',
-      'white-space:nowrap',
-      'text-overflow:ellipsis',
-      'overflow:hidden',
-      'animation:sdTelemetryIn 0.24s ease both',
-      `color:${color || '#7df9ff'}`
-    ].join(';');
-    commandBody.prepend(line);
-
-    while (commandBody.children.length > 16) {
-      commandBody.removeChild(commandBody.lastChild);
-    }
-
-    later(() => {
-      line.style.animation = 'sdTelemetryOut 0.3s ease both';
-    }, 2600);
-  }
-
-  const radarEvents = [];
-  function pingRadar() {
-    const x = 8 + Math.random() * 84;
-    const y = 8 + Math.random() * 84;
-    const node = document.createElement('div');
-    node.style.cssText = [
-      'position:absolute',
-      `left:${x}%`,
-      `top:${y}%`,
-      'width:8px',
-      'height:8px',
-      'border-radius:50%',
-      'background:#7dffdc',
-      'transform:translate(-50%,-50%)',
-      'box-shadow:0 0 12px rgba(125,255,220,0.8), 0 0 30px rgba(125,255,220,0.4)'
-    ].join(';');
-    radar.appendChild(node);
-
-    const wave = document.createElement('div');
-    wave.style.cssText = [
-      'position:absolute',
-      `left:${x}%`,
-      `top:${y}%`,
-      'width:8px',
-      'height:8px',
-      'border-radius:50%',
-      'transform:translate(-50%,-50%)',
-      'border:1px solid rgba(125,255,220,0.7)',
-      'animation:sdPulseNode 1.1s ease-out forwards'
-    ].join(';');
-    radar.appendChild(wave);
-
-    radarEvents.push(node, wave);
-    later(() => {
-      node.remove();
-      wave.remove();
-    }, 1200);
-  }
-
-  const chartCtx = metricCanvas.getContext('2d');
-  const chartSamples = Array(60).fill(35);
-
-  function drawDefenseChart() {
-    chartSamples.push(Math.max(2, Math.min(100, defenseScore + (Math.random() * 16 - 8))));
-    if (chartSamples.length > 60) chartSamples.shift();
-
-    chartCtx.clearRect(0, 0, metricCanvas.width, metricCanvas.height);
-    chartCtx.fillStyle = 'rgba(0,0,0,0.25)';
-    chartCtx.fillRect(0, 0, metricCanvas.width, metricCanvas.height);
-
-    chartCtx.strokeStyle = 'rgba(157,230,255,0.2)';
-    chartCtx.lineWidth = 1;
-    for (let i = 0; i <= 4; i++) {
-      const y = (metricCanvas.height - 2) * (i / 4) + 1;
-      chartCtx.beginPath();
-      chartCtx.moveTo(0, y);
-      chartCtx.lineTo(metricCanvas.width, y);
-      chartCtx.stroke();
-    }
-
-    chartCtx.beginPath();
-    chartCtx.lineWidth = 2;
-    chartCtx.strokeStyle = '#7df9ff';
-    chartSamples.forEach((value, i) => {
-      const x = (i / (chartSamples.length - 1)) * metricCanvas.width;
-      const y = metricCanvas.height - (value / 100) * (metricCanvas.height - 6) - 3;
-      if (i === 0) chartCtx.moveTo(x, y);
-      else chartCtx.lineTo(x, y);
-    });
-    chartCtx.stroke();
-
-    chartCtx.fillStyle = 'rgba(0,212,255,0.25)';
-    chartCtx.lineTo(metricCanvas.width, metricCanvas.height);
-    chartCtx.lineTo(0, metricCanvas.height);
-    chartCtx.closePath();
-    chartCtx.fill();
-  }
-
-  function registerCounterAction() {
-    if (!state.selfDestructActive) return;
-    counterActions++;
-    const boost = counterActions % 7 === 0 ? 4 : 2;
-    defenseScore = Math.min(100, defenseScore + boost);
-    threatLevel = Math.max(1, threatLevel - Math.ceil(boost / 2));
-    pushTelemetry(
-      `[BLUE_TEAM] Countermeasure #${counterActions.toString().padStart(2, '0')} synchronized — defense +${boost}`,
-      '#8dff9d'
-    );
-    updateDefenseHud();
-    if (counterActions % 5 === 0) playImpact(0.2, 0.12);
-  }
-
-  function onCounterKeydown(event) {
-    if (event.code === 'Space' || event.code === 'Enter') {
-      event.preventDefault();
-      registerCounterAction();
-    }
-  }
-
-  function spawnCorruptionBar() {
-    const bar = document.createElement('div');
-    bar.className = 'sd-corrupt-bar';
-    bar.style.top = `${Math.random() * 100}%`;
-    bar.style.width = `${35 + Math.random() * 55}%`;
-    bar.style.height = `${1 + Math.random() * 7}px`;
-    bar.style.background = ['#ff0040', '#00ff88', '#4040ff', '#ffea00', '#f500ff'][Math.floor(Math.random() * 5)];
-    bar.style.opacity = `${0.25 + Math.random() * 0.55}`;
-    bar.style.left = `${Math.random() * 28}%`;
-    document.body.appendChild(bar);
-    later(() => bar.remove(), 190);
-  }
-
-  function spawnWarningPopup() {
-    const popup = document.createElement('div');
-    popup.style.cssText = [
-      'position:fixed',
-      'z-index:100003',
-      `top:${8 + Math.random() * 66}%`,
-      `left:${5 + Math.random() * 65}%`,
-      'background:linear-gradient(130deg,rgba(33,10,16,0.95),rgba(7,6,22,0.95))',
-      'border:1px solid rgba(255,23,68,0.7)',
-      'border-radius:10px',
-      'padding:10px 14px',
-      'font-family:var(--font-mono)',
-      'color:#ffd3dc',
-      'font-size:11px',
-      'box-shadow:0 0 30px rgba(255,23,68,0.45)',
-      'pointer-events:none',
-      'animation:sdGlitchText 0.24s steps(2) infinite'
-    ].join(';');
-
-    const msgs = [
-      'SOC ALERT // East-West traffic anomaly',
-      'EDR // Suspicious process tree isolated',
-      'WAF // Layer-7 flood pattern detected',
-      'SIEM // Correlated IOC cluster match',
-      'XDR // Privilege escalation blocked',
-      'HONEYNET // decoy host interaction triggered',
-      'Sandbox // payload chain emulation live',
-      'IR // segment lockdown in progress'
-    ];
-    popup.textContent = msgs[Math.floor(Math.random() * msgs.length)];
-    document.body.appendChild(popup);
-    later(() => popup.remove(), 900 + Math.random() * 650);
-  }
-
-  function resetSuckedElements() {
-    document.querySelectorAll('.sd-sucked, .sd-sucking').forEach(el => {
-      el.classList.remove('sd-sucked', 'sd-sucking');
-      el.style.transform = '';
-      el.style.opacity = '';
-    });
-  }
-
-  function finalCleanup(showResult) {
+  function cleanup(showNotif) {
     if (cleanupDone) return;
     cleanupDone = true;
 
-    runtimeTimers.forEach(clearTimeout);
-    runtimeIntervals.forEach(clearInterval);
-    runtimeFrames.forEach(cancelAnimationFrame);
+    timeouts.forEach(clearTimeout);
+    intervals.forEach(clearInterval);
 
-    if (fireInterval) clearInterval(fireInterval);
-    if (streamInterval) clearInterval(streamInterval);
-    if (chartInterval) clearInterval(chartInterval);
-    if (pulseInterval) clearInterval(pulseInterval);
-
-    stopFire();
-    matrixRunning = false;
-    refs.matrixCanvas.classList.remove('active');
-    refs.warning.classList.remove('active');
-    refs.glitchLayer.classList.remove('active');
-    refs.glitchText.classList.remove('active');
-    refs.glitchText.style.color = '';
-    refs.glitchText.style.fontSize = '';
-    refs.bsod.classList.remove('active');
-    refs.reboot.classList.remove('active');
     refs.overlay.classList.remove('active');
-    refs.flash.classList.remove('active', 'fade');
-    refs.blackhole.classList.remove('active');
-    refs.bhRing.classList.remove('active');
+    refs.warning && refs.warning.classList.remove('active');
+    refs.bsod.classList.remove('active');
+    refs.reboot && refs.reboot.classList.remove('active');
+    refs.cmd.classList.remove('active');
+    refs.mock.classList.remove('active');
 
-    document.body.classList.remove('sd-shaking', 'sd-shaking-hard');
-    refs.rebootText.innerHTML = '';
-    refs.fireContainer.innerHTML = '';
-    mCtx.clearRect(0, 0, refs.matrixCanvas.width, refs.matrixCanvas.height);
-    resetSuckedElements();
+    if (refs.glitchLayer) refs.glitchLayer.classList.remove('active');
+    if (refs.glitchText) refs.glitchText.classList.remove('active');
+    if (refs.matrixCanvas) refs.matrixCanvas.classList.remove('active');
+    if (refs.fireContainer) refs.fireContainer.innerHTML = '';
+    if (refs.blackhole) refs.blackhole.classList.remove('active');
+    if (refs.bhRing) refs.bhRing.classList.remove('active');
+    if (refs.flash) refs.flash.classList.remove('active', 'fade');
 
-    radarEvents.forEach(node => node.remove());
-    cinematicLayer.remove();
-
-    window.removeEventListener('resize', onResize);
-    document.removeEventListener('keydown', onCounterKeydown);
-    refs.containBtn.onclick = null;
-
+    refs.cmdBody.innerHTML = '<div class="sd-cmd-scan"></div>';
     state.selfDestructActive = false;
 
-    if (showResult) {
-      showNotification(
-        'Defense drill terminee',
-        `Score defense ${defenseScore}/100. Contre-mesures executees: ${counterActions}.`
-      );
+    if (showNotif) {
+      showNotification('Simulation terminee', 'Le faux incident est termine. Aucun fichier n\'a ete touche.');
     }
-
-    if (actx && actx.state !== 'closed') {
-      actx.close().catch(() => {});
+    if (audioCtx && audioCtx.state !== 'closed') {
+      audioCtx.close().catch(() => {});
     }
   }
 
-  refs.containBtn.onclick = registerCounterAction;
-  document.addEventListener('keydown', onCounterKeydown);
-  refs.overlay.classList.add('active');
-  updateDefenseHud();
-  updateDynamicOverlayTint();
-  playAlarm(5200);
+  function appendCmdLine(text, cls) {
+    const line = document.createElement('div');
+    line.className = `sd-cmd-line${cls ? ` ${cls}` : ''}`;
+    line.textContent = text;
+    refs.cmdBody.insertBefore(line, refs.cmdBody.firstChild);
 
-  // Phase 1: count down and prepare
-  refs.warning.classList.add('active');
-  let count = 5;
-  refs.countdown.textContent = String(count);
-  refs.progress.style.width = '0%';
-  pushTelemetry('[SYSTEM] Incident simulation initialized', '#ffffff');
-  pushTelemetry('[SOC] Awaiting analyst response signal', '#ffe082');
-
-  const countInterval = every(() => {
-    count--;
-    refs.progress.style.width = `${Math.min(100, ((5 - count) / 5) * 100)}%`;
-    refs.countdown.style.transform = 'scale(1.2)';
-    later(() => { refs.countdown.style.transform = ''; }, 150);
-
-    if (count > 0) {
-      refs.countdown.textContent = String(count);
-      threatLevel = Math.min(99, threatLevel + 1);
-      updateDefenseHud();
-      pushTelemetry(`[ALERT] Breach timer T-${count}s`, '#ff8a80');
-      pingRadar();
-      updateDynamicOverlayTint();
-      playImpact(0.12, 0.06);
-    } else {
-      refs.countdown.textContent = '0';
-      refs.countdown.style.color = '#ff1744';
-      clearInterval(countInterval);
+    while (refs.cmdBody.children.length > 28) {
+      refs.cmdBody.removeChild(refs.cmdBody.lastChild);
     }
-  }, 1000);
+  }
 
-  // Phase 2: full cinematic chaos
+  const scaryCommands = [
+    'C:\\> whoami /all',
+    'C:\\> netstat -ano | findstr :443',
+    'C:\\> powershell -nop -w hidden -enc ********',
+    'C:\\> vssadmin list shadows',
+    'C:\\> reg query HKLM\\Software\\Microsoft\\Windows\\CurrentVersion\\Run',
+    'C:\\> wevtutil cl Security',
+    'C:\\> tasklist /v | findstr /i "defender"',
+    'C:\\> nbtstat -A 10.0.0.12',
+    'C:\\> certutil -urlcache -split -f payload.bin',
+    'C:\\> schtasks /create /tn "SilentWake" /sc minute /mo 1',
+    'C:\\> net user auditor$ P@ssw0rd! /add',
+    'C:\\> net localgroup administrators auditor$ /add',
+    'C:\\> for /L %i in (1,1,9) do @echo scanning subnet 10.0.0.%i',
+    'C:\\> echo [!] unauthorized control path detected',
+    'C:\\> color 0A'
+  ];
+
+  // Step 0: intentionally no immediate visible reaction (requested behavior)
   later(() => {
-    refs.warning.classList.remove('active');
-    refs.glitchLayer.classList.add('active');
-    refs.glitchText.classList.add('active');
-    refs.glitchText.textContent = 'INTRUSION LIVE';
-    refs.matrixCanvas.classList.add('active');
-    cinematicLayer.style.opacity = '1';
+    refs.overlay.classList.add('active');
+    refs.cmd.classList.add('active');
+    beep(360, 0.15, 0.05);
+  }, 3000);
 
-    matrixRunning = true;
-    drawMatrix();
-    startFire(14);
-
-    document.body.classList.add('sd-shaking');
-
-    const glitchMessages = [
-      'SOC FEED SPIKE',
-      'PACKET STORM',
-      'TOKEN FORGERY',
-      'LATERAL MOVEMENT',
-      'THREAT GRID SATURATED',
-      'DEFENSE LINKING',
-      'FIREWALL CHAOS',
-      'ROOT SHELL ATTEMPT',
-      'XDR COUNTERFLOW'
-    ];
-
-    let msgIndex = 0;
-    every(() => {
-      refs.glitchText.textContent = glitchMessages[msgIndex % glitchMessages.length];
-      refs.glitchText.style.color = ['#ffffff', '#ff5252', '#64ffda', '#ffd740'][msgIndex % 4];
-      msgIndex++;
-      spawnCorruptionBar();
-      updateDynamicOverlayTint();
-    }, 260);
-
-    const streamTemplates = [
-      '[SIEM] Correlation node {A} linked to IOC-{B}',
-      '[NETFLOW] East-West burst beyond baseline +{A}%',
-      '[IDS] Signature match vector-{A} / severity {B}',
-      '[PLAYBOOK] Running containment wave #{A}',
-      '[SOC] Incident queue pressure = {A}',
-      '[XDR] Adaptive policy branch {A} engaged',
-      '[EDR] Process quarantine token #{B} issued',
-      '[ANALYTICS] Entropy drift score {A}',
-      '[BLUE TEAM] Segmentation lock at ring {B}'
-    ];
-
-    streamInterval = every(() => {
-      const template = streamTemplates[Math.floor(Math.random() * streamTemplates.length)];
-      const valA = Math.floor(12 + Math.random() * 88);
-      const valB = Math.floor(1 + Math.random() * 9);
-      pushTelemetry(
-        template.replace('{A}', String(valA)).replace('{B}', String(valB)),
-        Math.random() > 0.7 ? '#ffd740' : '#7df9ff'
-      );
-      if (Math.random() > 0.62) pingRadar();
-      if (Math.random() > 0.78) spawnWarningPopup();
-
-      threatLevel = Math.min(99, threatLevel + Math.random() > 0.55 ? 1 : 0);
-      defenseScore = Math.max(0, defenseScore - (Math.random() > 0.8 ? 1 : 0));
-      updateDefenseHud();
-    }, 180);
-
-    pulseInterval = every(() => {
-      pingRadar();
-      pingRadar();
-      if (Math.random() > 0.65) playImpact(0.11, 0.05);
-    }, 400);
-
-    chartInterval = every(drawDefenseChart, 140);
-  }, 5400);
-
-  // Phase 3: branch by performance
+  // Step 1: fill fake CMD with commands
+  let cmdIndex = 0;
   later(() => {
-    document.body.classList.remove('sd-shaking');
-    document.body.classList.add('sd-shaking-hard');
+    const cmdIv = every(() => {
+      const command = scaryCommands[cmdIndex % scaryCommands.length];
+      const cls = command.includes('[!]') ? 'danger' : (cmdIndex % 4 === 0 ? 'warn' : 'ok');
+      appendCmdLine(command, cls);
+      if (cmdIndex % 3 === 0) beep(280 + (cmdIndex % 5) * 60, 0.08, 0.03);
+      cmdIndex++;
+    }, 120);
 
-    if (defenseScore >= 80) {
-      refs.glitchText.textContent = 'BLUE TEAM DOMINANT';
-      refs.glitchText.style.color = '#00e676';
-      refs.glitchText.style.fontSize = 'clamp(2.2rem, 6vw, 4.8rem)';
-      startFire(10);
-      pushTelemetry('[COMMAND] Counter response superior. Containment trending positive.', '#8dff9d');
-    } else if (defenseScore >= 45) {
-      refs.glitchText.textContent = 'BREACH PARTIELLE';
-      refs.glitchText.style.color = '#ffea00';
-      refs.glitchText.style.fontSize = 'clamp(2.3rem, 6.5vw, 5rem)';
-      startFire(20);
-      pushTelemetry('[COMMAND] Stabilization in progress. Hold defensive pressure.', '#ffe082');
-    } else {
-      refs.glitchText.textContent = 'CRITICAL CASCADE';
-      refs.glitchText.style.color = '#ff1744';
-      refs.glitchText.style.fontSize = 'clamp(2.4rem, 7vw, 5.2rem)';
-      startFire(30);
-      pushTelemetry('[COMMAND] Critical cascade detected. Escalation unavoidable.', '#ff8a80');
-    }
+    later(() => clearInterval(cmdIv), 3600);
+  }, 3200);
 
-    playImpact(0.8, 0.22);
-  }, 12800);
-
-  // Phase 4: singularity and pull
+  // Step 2: BSOD phase
   later(() => {
-    refs.glitchLayer.classList.remove('active');
-    refs.glitchText.classList.remove('active');
-    refs.matrixCanvas.classList.remove('active');
-    matrixRunning = false;
-    stopFire();
-    cinematicLayer.style.opacity = '0';
-    document.body.classList.remove('sd-shaking-hard');
+    refs.bsod.classList.add('active');
+    beep(180, 0.5, 0.06);
 
-    const targets = document.querySelectorAll('.os-window, .desktop-icon, #taskbar, #startMenu');
-    targets.forEach((el, i) => {
-      later(() => el.classList.add('sd-sucking'), i * 35);
-      later(() => el.classList.add('sd-sucked'), 160 + i * 35);
-    });
+    let p = 0;
+    const bsodIv = every(() => {
+      p += 5 + Math.floor(Math.random() * 9);
+      if (p > 100) p = 100;
+      refs.bsodPercent.innerHTML = `<span class="sd-bsod-spinner"></span>${p}% complete`;
+      if (p >= 100) clearInterval(bsodIv);
+    }, 140);
+  }, 6900);
 
-    refs.bhRing.classList.add('active');
-    playImpact(1.2, 0.34);
-
-    later(() => {
-      refs.bhRing.classList.remove('active');
-      refs.blackhole.classList.add('active');
-      playImpact(1.4, 0.4);
-      pushTelemetry('[CORE] Event horizon reached. System collapse emulation started.', '#ffffff');
-    }, 1200);
-  }, 16300);
-
-  // Phase 5: flash and bsod
-  later(() => {
-    refs.flash.classList.add('active');
-    playImpact(0.9, 0.45);
-
-    later(() => {
-      refs.flash.classList.add('fade');
-      later(() => {
-        refs.flash.classList.remove('active', 'fade');
-        refs.blackhole.classList.remove('active');
-        refs.bsod.classList.add('active');
-
-        let percent = 0;
-        const bsodTicker = every(() => {
-          percent += Math.floor(2 + Math.random() * 9);
-          if (percent > 100) percent = 100;
-          refs.bsodPercent.innerHTML = `<span class="sd-bsod-spinner"></span>${percent}% complete`;
-          if (percent >= 100) {
-            clearInterval(bsodTicker);
-          }
-        }, 140);
-      }, 900);
-    }, 260);
-  }, 18800);
-
-  // Phase 6: reboot narrative
+  // Step 3: mock screen with laughing smiley
   later(() => {
     refs.bsod.classList.remove('active');
-    refs.reboot.classList.add('active');
-    refs.rebootText.innerHTML = '';
+    refs.cmd.classList.remove('active');
+    refs.mock.classList.add('active');
+    beep(510, 0.12, 0.04);
+    later(() => beep(430, 0.12, 0.04), 190);
+    later(() => beep(570, 0.12, 0.04), 380);
+  }, 9800);
 
-    const bootLines = [
-      'UEFI Sentinel v9.7.4 // secure mode enabled',
-      'Memory integrity check ..................... OK',
-      'Restoring containment snapshots ............ OK',
-      'Blue-team telemetry bus .................... LIVE',
-      'Rehydrating SOC graph engine ............... OK',
-      'Deploying adaptive firewall mesh ........... OK',
-      'Rebinding trust anchors .................... OK',
-      'Synthesizing defense timeline .............. COMPLETE',
-      'Threat signal collapsed into sandbox layer.',
-      'Desktop environment stabilization .......... 100%',
-      '',
-      'INTRUSION DRILL FINISHED // YOU HELD THE LINE'
-    ];
-
-    let idx = 0;
-    const typeIv = every(() => {
-      if (idx >= bootLines.length) {
-        clearInterval(typeIv);
-        const cursor = document.createElement('span');
-        cursor.className = 'sd-reboot-cursor';
-        if (refs.rebootText.lastChild) refs.rebootText.lastChild.appendChild(cursor);
-        return;
-      }
-
-      const line = document.createElement('div');
-      line.textContent = bootLines[idx];
-      if (line.textContent.includes('OK') || line.textContent.includes('100%')) {
-        line.style.color = '#00ff41';
-      }
-      if (line.textContent.includes('COMPLETE') || line.textContent.includes('LIVE')) {
-        line.style.color = '#64ffda';
-      }
-      if (line.textContent.includes('HELD THE LINE')) {
-        line.style.color = '#ffe082';
-        line.style.fontSize = '1.12em';
-        line.style.fontWeight = '700';
-        line.style.marginTop = '8px';
-      }
-      refs.rebootText.appendChild(line);
-      refs.reboot.scrollTop = refs.reboot.scrollHeight;
-      playBootBeep();
-      idx++;
-    }, 180);
-  }, 21400);
-
-  // Final restore
+  // Step 4: restore
   later(() => {
-    finalCleanup(true);
-  }, 25500);
+    cleanup(true);
+  }, 15000);
 }
 
 function triggerHackSimulation() {
