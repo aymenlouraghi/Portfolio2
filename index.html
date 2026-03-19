@@ -751,6 +751,52 @@ button:focus-visible, input:focus-visible { outline-offset: 0; }
 }
 
 .editor-main { flex:1; display:flex; flex-direction:column; }
+.editor-toolbar {
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding: 8px 10px;
+  background: rgba(0,0,0,0.15);
+  border-bottom: 1px solid var(--border);
+}
+.editor-search {
+  flex:1;
+  min-width: 80px;
+  padding: 6px 10px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.04);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 0.75rem;
+  outline:none;
+}
+.editor-search:focus { border-color: var(--primary); }
+.editor-btn {
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.04);
+  color: var(--text);
+  border-radius: 6px;
+  font-size: 0.72rem;
+  padding: 6px 10px;
+  cursor:pointer;
+  font-family: var(--font);
+  transition: background 0.2s, border-color 0.2s;
+}
+.editor-btn:hover {
+  background: rgba(255,255,255,0.1);
+  border-color: rgba(255,255,255,0.2);
+}
+.editor-btn.active {
+  background: rgba(0,212,255,0.15);
+  border-color: rgba(0,212,255,0.35);
+  color: var(--primary);
+}
+.editor-status {
+  font-size:0.7rem;
+  color: var(--text-muted);
+  white-space:nowrap;
+}
 .editor-code {
   flex:1; overflow:auto;
   padding: 1rem;
@@ -762,6 +808,15 @@ button:focus-visible, input:focus-visible { outline-offset: 0; }
 .code-line {
   display:flex; gap:1rem;
 }
+.code-line.selected .code-line-text {
+  background: rgba(0,212,255,0.12);
+}
+.code-line.match .code-line-text {
+  background: rgba(255,193,7,0.12);
+}
+.code-line.match.active-match .code-line-text {
+  background: rgba(255,193,7,0.25);
+}
 .code-line::before {
   counter-increment: line;
   content: counter(line);
@@ -770,6 +825,17 @@ button:focus-visible, input:focus-visible { outline-offset: 0; }
   min-width:2.5em;
   text-align:right;
   font-size:0.78rem;
+}
+.code-line-text {
+  flex:1;
+  white-space:pre;
+  border-radius: 4px;
+  padding: 0 4px;
+  transition: background 0.15s;
+}
+.editor-code.edit-mode .code-line-text {
+  outline: none;
+  cursor: text;
 }
 .code-line .kw { color: var(--accent-purple); }
 .code-line .str { color: #ce9178; }
@@ -2902,6 +2968,10 @@ button:focus-visible, input:focus-visible { outline-offset: 0; }
   .editor-tabs { overflow-x:auto; scrollbar-width:none; flex-wrap:nowrap; }
   .editor-tabs::-webkit-scrollbar { display:none; }
   .editor-tab { padding:6px 10px; font-size:0.68rem; white-space:nowrap; }
+  .editor-toolbar { padding: 6px; gap: 6px; }
+  .editor-search { font-size: 0.68rem; padding: 5px 8px; }
+  .editor-btn { font-size: 0.66rem; padding: 5px 8px; }
+  .editor-status { display:none; }
   .editor-code { font-size:0.7rem; padding:0.6rem; line-height:1.6; }
   .code-line { gap:0.5rem; }
   .code-line::before { min-width:2em; font-size:0.65rem; }
@@ -3337,6 +3407,7 @@ const state = {
   zCounter: 100,
   startMenuOpen: false,
   selfDestructActive: false,
+  aproposDrafts: {},
   terminalHistory: [],
   terminalHistoryIndex: -1,
   notifTimer: null,
@@ -3684,70 +3755,23 @@ function getWindowContent(id) {
       icon: '📝',
       width: 780, height: 550,
       content: `
-        <div class="editor-container">
+        <div class="editor-container apropos-editor-root" tabindex="0">
           <div class="editor-sidebar">
-            <div class="editor-sidebar-icon active">📄</div>
-            <div class="editor-sidebar-icon">🔍</div>
-            <div class="editor-sidebar-icon">🔀</div>
-            <div class="editor-sidebar-icon">🧩</div>
+            <div class="editor-sidebar-icon active" data-action="files" title="Fichiers">📄</div>
+            <div class="editor-sidebar-icon" data-action="search" title="Recherche">🔍</div>
+            <div class="editor-sidebar-icon" data-action="swap" title="Changer de fichier">🔀</div>
+            <div class="editor-sidebar-icon" data-action="edit" title="Mode édition">🧩</div>
           </div>
           <div class="editor-main">
-            <div class="editor-tabs">
-              <div class="editor-tab active">📄 à_propos.json</div>
-              <div class="editor-tab">📄 skills.js</div>
+            <div class="editor-tabs" id="aproposTabs"></div>
+            <div class="editor-toolbar">
+              <input id="aproposSearch" class="editor-search" type="text" placeholder="Rechercher dans le fichier... (Ctrl+F)">
+              <button class="editor-btn" id="aproposPrev" title="Résultat précédent">↑</button>
+              <button class="editor-btn" id="aproposNext" title="Résultat suivant">↓</button>
+              <button class="editor-btn" id="aproposEditToggle" title="Activer/Désactiver l'édition">Modifier</button>
+              <span class="editor-status" id="aproposStatus">Prêt</span>
             </div>
-            <div class="editor-code">
-              <div class="code-line"><span class="cm">// ═══════════════════════════════════</span></div>
-              <div class="code-line"><span class="cm">//  À PROPOS — Aymen Louraghi</span></div>
-              <div class="code-line"><span class="cm">// ═══════════════════════════════════</span></div>
-              <div class="code-line">&nbsp;</div>
-              <div class="code-line"><span class="kw">const</span> <span class="prop">profil</span> = {</div>
-              <div class="code-line">&nbsp;&nbsp;<span class="prop">nom</span>: <span class="str">"Aymen Louraghi"</span>,</div>
-              <div class="code-line">&nbsp;&nbsp;<span class="prop">âge</span>: <span class="num">19</span>,</div>
-              <div class="code-line">&nbsp;&nbsp;<span class="prop">formation</span>: <span class="str">"BTS SIO option SISR"</span>,</div>
-              <div class="code-line">&nbsp;&nbsp;<span class="prop">école</span>: <span class="str">"CFP Les Charmilles"</span>,</div>
-              <div class="code-line">&nbsp;&nbsp;<span class="prop">alternance</span>: <span class="str">"Konvergence"</span>,</div>
-              <div class="code-line">&nbsp;&nbsp;<span class="prop">localisation</span>: <span class="str">"235 rue de Corporat Moirans"</span>,</div>
-              <div class="code-line">&nbsp;&nbsp;<span class="prop">passions</span>: [</div>
-              <div class="code-line">&nbsp;&nbsp;&nbsp;&nbsp;<span class="str">"Réseaux & Infrastructures"</span>,</div>
-              <div class="code-line">&nbsp;&nbsp;&nbsp;&nbsp;<span class="str">"Cybersécurité"</span>,</div>
-              <div class="code-line">&nbsp;&nbsp;&nbsp;&nbsp;<span class="str">"Administration Systèmes"</span>,</div>
-              <div class="code-line">&nbsp;&nbsp;&nbsp;&nbsp;<span class="str">"Automatisation de procédés"</span></div>
-              <div class="code-line">&nbsp;&nbsp;],</div>
-              <div class="code-line">&nbsp;&nbsp;<span class="prop">objectif</span>: <span class="str">"Devenir Technicien de maintenance informatique"</span></div>
-              <div class="code-line">};</div>
-              <div class="code-line">&nbsp;</div>
-              <div class="code-line"><span class="cm">// ─── PARCOURS DE PROFESSIONNALISATION ───</span></div>
-              <div class="code-line">&nbsp;</div>
-              <div class="code-line"><span class="kw">const</span> <span class="prop">parcours</span> = [</div>
-              <div class="code-line">&nbsp;&nbsp;{</div>
-              <div class="code-line">&nbsp;&nbsp;&nbsp;&nbsp;<span class="prop">période</span>: <span class="str">"2024"</span>,</div>
-              <div class="code-line">&nbsp;&nbsp;&nbsp;&nbsp;<span class="prop">étape</span>: <span class="str">"BTS SIO SISR — Année 1"</span>,</div>
-              <div class="code-line">&nbsp;&nbsp;&nbsp;&nbsp;<span class="prop">détails</span>: <span class="str">"Réseau Cisco, Linux, Windows Server, SQL, Python"</span></div>
-              <div class="code-line">&nbsp;&nbsp;},</div>
-              <div class="code-line">&nbsp;&nbsp;{</div>
-              <div class="code-line">&nbsp;&nbsp;&nbsp;&nbsp;<span class="prop">période</span>: <span class="str">"2024-2025"</span>,</div>
-              <div class="code-line">&nbsp;&nbsp;&nbsp;&nbsp;<span class="prop">étape</span>: <span class="str">"Alternance Konvergence"</span>,</div>
-              <div class="code-line">&nbsp;&nbsp;&nbsp;&nbsp;<span class="prop">détails</span>: <span class="str">"GLPI, AD, VMware, Support N1/N2, Sécurité"</span></div>
-              <div class="code-line">&nbsp;&nbsp;},</div>
-              <div class="code-line">&nbsp;&nbsp;{</div>
-              <div class="code-line">&nbsp;&nbsp;&nbsp;&nbsp;<span class="prop">période</span>: <span class="str">"2025-2026"</span>,</div>
-              <div class="code-line">&nbsp;&nbsp;&nbsp;&nbsp;<span class="prop">étape</span>: <span class="str">"BTS SIO SISR — Année 2"</span>,</div>
-              <div class="code-line">&nbsp;&nbsp;&nbsp;&nbsp;<span class="prop">détails</span>: <span class="str">"Cybersécurité, Veille, Portfolio, Projet E5"</span></div>
-              <div class="code-line">&nbsp;&nbsp;},</div>
-              <div class="code-line">&nbsp;&nbsp;{</div>
-              <div class="code-line">&nbsp;&nbsp;&nbsp;&nbsp;<span class="prop">période</span>: <span class="str">"2026"</span>,</div>
-              <div class="code-line">&nbsp;&nbsp;&nbsp;&nbsp;<span class="prop">étape</span>: <span class="str">"Préparation épreuves BTS"</span>,</div>
-              <div class="code-line">&nbsp;&nbsp;&nbsp;&nbsp;<span class="prop">détails</span>: <span class="str">"E4 (Support & mise à dispo), E5 (Infrastructure)"</span></div>
-              <div class="code-line">&nbsp;&nbsp;}</div>
-              <div class="code-line">];</div>
-              <div class="code-line">&nbsp;</div>
-              <div class="code-line"><span class="cm">// Actuellement en alternance, je conçois</span></div>
-              <div class="code-line"><span class="cm">// et déploie des infrastructures réseau</span></div>
-              <div class="code-line"><span class="cm">// tout en renforçant leur sécurité.</span></div>
-              <div class="code-line"><span class="cm">// Mon parcours couvre les 6 compétences</span></div>
-              <div class="code-line"><span class="cm">// du bloc E4 du BTS SIO.</span></div>
-            </div>
+            <div class="editor-code" id="aproposCode"></div>
           </div>
         </div>
       `
@@ -5403,6 +5427,7 @@ function openWindow(id) {
   if (!isMobile()) initResize(win);
   // Window-specific init
   if (id === 'accueil') initTypingEffect();
+  if (id === 'apropos') initAproposEditor();
   if (id === 'terminal') initTerminal();
   if (id === 'projets') initProjets();
   if (id === 'scolarite') initScolarite();
@@ -5628,6 +5653,290 @@ function initTypingEffect() {
     }
   }
   setTimeout(type, 500);
+}
+
+// ============================
+// A PROPOS EDITOR (interactive)
+// ============================
+const APROPOS_EDITOR_FILES = {
+  'a-propos-json': {
+    label: '📄 à_propos.json',
+    lines: [
+      '// ===================================',
+      '//  A PROPOS - Aymen Louraghi',
+      '// ===================================',
+      '',
+      '{',
+      '  "nom": "Aymen Louraghi",',
+      '  "age": 19,',
+      '  "formation": "BTS SIO option SISR",',
+      '  "ecole": "CFP Les Charmilles",',
+      '  "alternance": "Konvergence",',
+      '  "localisation": "235 rue de Corporat Moirans",',
+      '  "passions": [',
+      '    "Reseaux et Infrastructures",',
+      '    "Cybersecurite",',
+      '    "Administration Systemes",',
+      '    "Automatisation de procedes"',
+      '  ],',
+      '  "objectif": "Devenir Technicien de maintenance informatique"',
+      '}',
+      '',
+      '// --- PARCOURS DE PROFESSIONNALISATION ---',
+      '',
+      '[',
+      '  { "periode": "2024", "etape": "BTS SIO SISR - Annee 1" },',
+      '  { "periode": "2024-2025", "etape": "Alternance Konvergence" },',
+      '  { "periode": "2025-2026", "etape": "BTS SIO SISR - Annee 2" },',
+      '  { "periode": "2026", "etape": "Preparation epreuves BTS" }',
+      ']',
+      '',
+      '// Cliquez, recherchez, modifiez, puis changez de fichier.'
+    ]
+  },
+  'skills-js': {
+    label: '📄 skills.js',
+    lines: [
+      '/**',
+      ' * skills.js',
+      ' * Fichier interactif de demonstration',
+      ' */',
+      '',
+      'const skills = [',
+      '  { name: "Reseaux Cisco", level: 85 },',
+      '  { name: "Linux", level: 80 },',
+      '  { name: "Windows Server", level: 82 },',
+      '  { name: "Cybersecurite", level: 70 },',
+      '  { name: "Active Directory", level: 78 },',
+      '  { name: "GLPI / ITSM", level: 75 },',
+      '  { name: "Virtualisation", level: 72 }',
+      '];',
+      '',
+      'function getTopSkill(list) {',
+      '  return [...list].sort((a, b) => b.level - a.level)[0];',
+      '}',
+      '',
+      'console.log("Top skill:", getTopSkill(skills));'
+    ]
+  }
+};
+
+function initAproposEditor() {
+  const win = state.windows.apropos;
+  if (!win) return;
+
+  const root = win.querySelector('.apropos-editor-root');
+  const tabsEl = win.querySelector('#aproposTabs');
+  const codeEl = win.querySelector('#aproposCode');
+  const searchEl = win.querySelector('#aproposSearch');
+  const statusEl = win.querySelector('#aproposStatus');
+  const prevBtn = win.querySelector('#aproposPrev');
+  const nextBtn = win.querySelector('#aproposNext');
+  const editBtn = win.querySelector('#aproposEditToggle');
+  if (!root || !tabsEl || !codeEl || !searchEl || !statusEl || !prevBtn || !nextBtn || !editBtn) return;
+
+  const fileIds = Object.keys(APROPOS_EDITOR_FILES);
+  if (!fileIds.length) return;
+
+  fileIds.forEach(fileId => {
+    if (!Array.isArray(state.aproposDrafts[fileId])) {
+      state.aproposDrafts[fileId] = [...APROPOS_EDITOR_FILES[fileId].lines];
+    }
+  });
+
+  const editorState = {
+    currentFile: fileIds[0],
+    selectedLine: 0,
+    search: '',
+    matches: [],
+    matchIndex: -1,
+    editMode: false,
+  };
+
+  function escapeForHtml(str) {
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  function getLines() {
+    return state.aproposDrafts[editorState.currentFile];
+  }
+
+  function updateStatus() {
+    const fileLabel = APROPOS_EDITOR_FILES[editorState.currentFile].label;
+    const searchInfo = editorState.search
+      ? `${editorState.matches.length} resultat(s)`
+      : 'Aucune recherche';
+    const modeInfo = editorState.editMode ? 'Edition active' : 'Lecture seule';
+    statusEl.textContent = `${fileLabel} | Ligne ${editorState.selectedLine + 1} | ${searchInfo} | ${modeInfo}`;
+  }
+
+  function renderTabs() {
+    tabsEl.innerHTML = fileIds.map(fileId => `
+      <div class="editor-tab ${fileId === editorState.currentFile ? 'active' : ''}" data-file-id="${fileId}">
+        ${APROPOS_EDITOR_FILES[fileId].label}
+      </div>
+    `).join('');
+
+    tabsEl.querySelectorAll('.editor-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        const newFileId = tab.dataset.fileId;
+        if (!newFileId || newFileId === editorState.currentFile) return;
+        editorState.currentFile = newFileId;
+        editorState.selectedLine = 0;
+        editorState.matchIndex = -1;
+        renderTabs();
+        renderCode();
+      });
+    });
+  }
+
+  function computeMatches() {
+    const query = editorState.search.trim().toLowerCase();
+    if (!query) {
+      editorState.matches = [];
+      editorState.matchIndex = -1;
+      return;
+    }
+    editorState.matches = getLines()
+      .map((line, idx) => ({ idx, hit: String(line).toLowerCase().includes(query) }))
+      .filter(item => item.hit)
+      .map(item => item.idx);
+
+    if (!editorState.matches.length) {
+      editorState.matchIndex = -1;
+      return;
+    }
+    if (editorState.matchIndex < 0 || editorState.matchIndex >= editorState.matches.length) {
+      editorState.matchIndex = 0;
+    }
+    editorState.selectedLine = editorState.matches[editorState.matchIndex];
+  }
+
+  function renderCode() {
+    computeMatches();
+    const lines = getLines();
+    codeEl.classList.toggle('edit-mode', editorState.editMode);
+    codeEl.innerHTML = lines.map((line, idx) => {
+      const isSelected = idx === editorState.selectedLine;
+      const hitPos = editorState.matches.indexOf(idx);
+      const isMatch = hitPos !== -1;
+      const isActiveMatch = isMatch && hitPos === editorState.matchIndex;
+      const classes = [
+        'code-line',
+        isSelected ? 'selected' : '',
+        isMatch ? 'match' : '',
+        isActiveMatch ? 'active-match' : ''
+      ].filter(Boolean).join(' ');
+      return `
+        <div class="${classes}" data-line-index="${idx}">
+          <span class="code-line-text" contenteditable="${editorState.editMode ? 'true' : 'false'}" spellcheck="false">${escapeForHtml(line)}</span>
+        </div>
+      `;
+    }).join('');
+
+    updateStatus();
+  }
+
+  function goToMatch(step) {
+    if (!editorState.matches.length) return;
+    editorState.matchIndex = (editorState.matchIndex + step + editorState.matches.length) % editorState.matches.length;
+    editorState.selectedLine = editorState.matches[editorState.matchIndex];
+    renderCode();
+    const line = codeEl.querySelector(`.code-line[data-line-index="${editorState.selectedLine}"]`);
+    if (line) line.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  function swapFile() {
+    const currentIdx = fileIds.indexOf(editorState.currentFile);
+    const nextIdx = (currentIdx + 1) % fileIds.length;
+    editorState.currentFile = fileIds[nextIdx];
+    editorState.selectedLine = 0;
+    editorState.matchIndex = -1;
+    renderTabs();
+    renderCode();
+  }
+
+  function toggleEditMode() {
+    editorState.editMode = !editorState.editMode;
+    editBtn.classList.toggle('active', editorState.editMode);
+    editBtn.textContent = editorState.editMode ? 'Lecture' : 'Modifier';
+    renderCode();
+  }
+
+  tabsEl.addEventListener('dblclick', () => toggleEditMode());
+
+  codeEl.addEventListener('click', e => {
+    const lineEl = e.target.closest('.code-line');
+    if (!lineEl) return;
+    editorState.selectedLine = Number(lineEl.dataset.lineIndex || 0);
+    renderCode();
+  });
+
+  codeEl.addEventListener('input', e => {
+    const textEl = e.target.closest('.code-line-text');
+    if (!textEl || !editorState.editMode) return;
+    const lineEl = textEl.closest('.code-line');
+    if (!lineEl) return;
+    const lineIndex = Number(lineEl.dataset.lineIndex || 0);
+    getLines()[lineIndex] = textEl.textContent || '';
+    computeMatches();
+    updateStatus();
+  });
+
+  searchEl.addEventListener('input', () => {
+    editorState.search = searchEl.value;
+    editorState.matchIndex = -1;
+    renderCode();
+  });
+
+  prevBtn.addEventListener('click', () => goToMatch(-1));
+  nextBtn.addEventListener('click', () => goToMatch(1));
+  editBtn.addEventListener('click', () => toggleEditMode());
+
+  win.querySelectorAll('.editor-sidebar-icon').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const action = btn.dataset.action;
+      if (action === 'search') {
+        searchEl.focus();
+        searchEl.select();
+      }
+      if (action === 'swap') swapFile();
+      if (action === 'edit') toggleEditMode();
+    });
+  });
+
+  root.addEventListener('keydown', e => {
+    const key = e.key.toLowerCase();
+    if (e.ctrlKey && key === 'f') {
+      e.preventDefault();
+      searchEl.focus();
+      searchEl.select();
+      return;
+    }
+    if (e.key === 'F3' || (e.ctrlKey && key === 'g')) {
+      e.preventDefault();
+      goToMatch(e.shiftKey ? -1 : 1);
+      return;
+    }
+    if (e.ctrlKey && key === 'e') {
+      e.preventDefault();
+      toggleEditMode();
+      return;
+    }
+    if (e.ctrlKey && e.key === 'Tab') {
+      e.preventDefault();
+      swapFile();
+    }
+  });
+
+  renderTabs();
+  renderCode();
+  setTimeout(() => root.focus(), 10);
 }
 
 // ============================
