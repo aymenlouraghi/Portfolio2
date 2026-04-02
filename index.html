@@ -108,7 +108,6 @@ button:focus-visible, input:focus-visible { outline-offset: 0; }
 .boot-progress {
   width:200px; height:3px;
   background: rgba(255,255,255,0.1);
-  border-radius:2px;
   overflow:hidden;
 }
 .boot-progress-fill {
@@ -965,6 +964,210 @@ button:focus-visible, input:focus-visible { outline-offset: 0; }
 .code-line .num { color: #b5cea8; }
 .code-line .prop { color: #9cdcfe; }
 .code-line .type { color: #4ec9b0; }
+
+/* Questline skin for A propos editor */
+.apropos-game-shell {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 9% -16%, rgba(102, 208, 255, 0.34) 0%, transparent 36%),
+    radial-gradient(circle at 92% -12%, rgba(255, 219, 134, 0.28) 0%, transparent 38%),
+    linear-gradient(165deg, #081a2f 0%, #0a1025 50%, #140a22 100%);
+}
+.apropos-game-shell::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    repeating-linear-gradient(0deg, rgba(255,255,255,0.06) 0 1px, transparent 1px 5px),
+    repeating-linear-gradient(90deg, rgba(0,0,0,0.16) 0 1px, transparent 1px 5px);
+  opacity: 0.11;
+  animation: aproposGridPulse 9s ease-in-out infinite;
+}
+.apropos-game-shell::after {
+  content: '';
+  position: absolute;
+  inset: -30% -10%;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 22% 76%, rgba(104, 251, 230, 0.2), transparent 30%),
+    radial-gradient(circle at 78% 24%, rgba(245, 193, 255, 0.19), transparent 34%);
+  filter: blur(14px);
+  animation: aproposNebulaFloat 14s ease-in-out infinite;
+}
+@keyframes aproposGridPulse {
+  0%, 100% { opacity: 0.08; }
+  50% { opacity: 0.16; }
+}
+@keyframes aproposNebulaFloat {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg); }
+  50% { transform: translate3d(-8px, 8px, 0) rotate(2deg); }
+}
+.apropos-game-hud {
+  position: relative;
+  z-index: 1;
+  margin: 10px 10px 0;
+  padding: 8px 12px;
+  border: 1px solid rgba(142, 223, 255, 0.32);
+  border-radius: 10px;
+  background: linear-gradient(90deg, rgba(4, 18, 38, 0.9), rgba(8, 28, 54, 0.88), rgba(27, 11, 39, 0.88));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 8px 16px rgba(0,0,0,0.25);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
+}
+.apropos-hud-title {
+  font-family: var(--font-mono);
+  color: #d9f4ff;
+  font-size: 0.72rem;
+  letter-spacing: 0.9px;
+  text-shadow: 0 0 8px rgba(123, 208, 255, 0.45);
+}
+.apropos-hud-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.apropos-hud-badge {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.45px;
+  color: #effbff;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, rgba(0, 212, 255, 0.22), rgba(0, 230, 118, 0.17));
+  border: 1px solid rgba(160, 232, 255, 0.35);
+  animation: aproposBadgeGlow 2.8s ease-in-out infinite;
+}
+@keyframes aproposBadgeGlow {
+  0%, 100% { box-shadow: 0 0 0 rgba(110, 222, 255, 0.2); }
+  50% { box-shadow: 0 0 10px rgba(110, 222, 255, 0.28); }
+}
+.apropos-game-shell .editor-container {
+  height: auto;
+}
+.apropos-editor-root {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  min-height: 0;
+  margin: 10px;
+  border-radius: 12px;
+  border: 1px solid rgba(151, 212, 255, 0.28);
+  background: linear-gradient(180deg, rgba(9, 17, 36, 0.9) 0%, rgba(7, 13, 28, 0.94) 100%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 12px 28px rgba(0,0,0,0.34);
+  overflow: hidden;
+}
+.apropos-editor-root::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(135, 223, 255, 0.08), transparent 28%);
+}
+.apropos-editor-root .editor-sidebar {
+  width: 52px;
+  background: linear-gradient(180deg, rgba(12, 25, 48, 0.9), rgba(8, 16, 31, 0.95));
+  border-right: 1px solid rgba(152, 211, 255, 0.2);
+  gap: 10px;
+}
+.apropos-editor-root .editor-sidebar-icon {
+  width: 32px;
+  height: 32px;
+  font-size: 0.95rem;
+  border: 1px solid transparent;
+  border-radius: 7px;
+}
+.apropos-editor-root .editor-sidebar-icon:hover {
+  color: #f8feff;
+  background: rgba(151, 224, 255, 0.14);
+  border-color: rgba(156, 225, 255, 0.25);
+}
+.apropos-editor-root .editor-sidebar-icon.active {
+  color: #f8feff;
+  border-left: none;
+  border-color: rgba(255, 229, 153, 0.5);
+  background: linear-gradient(135deg, rgba(255, 227, 141, 0.2), rgba(0, 212, 255, 0.15));
+  box-shadow: 0 0 10px rgba(255, 226, 141, 0.24);
+}
+.apropos-editor-root .editor-main {
+  position: relative;
+  backdrop-filter: blur(3px);
+}
+.apropos-editor-root .editor-tabs {
+  background: linear-gradient(90deg, rgba(8, 19, 40, 0.88), rgba(8, 29, 50, 0.72));
+  border-bottom: 1px solid rgba(151, 211, 255, 0.2);
+  padding-left: 4px;
+}
+.apropos-editor-root .editor-tab {
+  margin: 4px 4px 0 0;
+  border-radius: 8px 8px 0 0;
+  border-right: none;
+  border: 1px solid transparent;
+  border-bottom: none;
+  color: #9ec4df;
+}
+.apropos-editor-root .editor-tab.active {
+  background: linear-gradient(180deg, rgba(13, 33, 59, 0.95), rgba(8, 20, 40, 0.95));
+  color: #f4fbff;
+  border-color: rgba(159, 220, 255, 0.36);
+  border-bottom-color: transparent;
+  margin-bottom: -1px;
+}
+.apropos-editor-root .editor-toolbar {
+  background: linear-gradient(90deg, rgba(4, 15, 30, 0.76), rgba(5, 20, 38, 0.7));
+  border-bottom: 1px solid rgba(154, 212, 255, 0.16);
+}
+.apropos-editor-root .editor-search {
+  border-color: rgba(151, 211, 255, 0.26);
+  background: rgba(1, 13, 27, 0.62);
+}
+.apropos-editor-root .editor-search::placeholder {
+  color: #7ca0bc;
+}
+.apropos-editor-root .editor-search:focus {
+  border-color: rgba(165, 229, 255, 0.62);
+  box-shadow: 0 0 0 2px rgba(110, 218, 255, 0.14);
+}
+.apropos-editor-root .editor-btn {
+  border-color: rgba(151, 212, 255, 0.24);
+  background: rgba(3, 16, 32, 0.55);
+}
+.apropos-editor-root .editor-btn:hover {
+  background: rgba(155, 225, 255, 0.14);
+}
+.apropos-editor-root .editor-btn.active {
+  background: linear-gradient(135deg, rgba(255, 227, 143, 0.24), rgba(0, 212, 255, 0.2));
+  border-color: rgba(255, 227, 143, 0.42);
+  color: #fff1c6;
+}
+.apropos-editor-root .editor-status {
+  color: #b5d8ef;
+}
+.apropos-editor-root .editor-code {
+  background:
+    linear-gradient(180deg, rgba(6, 13, 27, 0.6), rgba(5, 11, 22, 0.85)),
+    repeating-linear-gradient(0deg, rgba(255,255,255,0.04) 0 1px, transparent 1px 24px);
+}
+.apropos-editor-root .code-line::before {
+  color: #88aac5;
+  opacity: 0.8;
+}
+.apropos-editor-root .code-line.selected .code-line-text {
+  background: rgba(0, 212, 255, 0.18);
+}
+.apropos-editor-root .code-line.match .code-line-text {
+  background: rgba(255, 196, 99, 0.16);
+}
+.apropos-editor-root .code-line.match.active-match .code-line-text {
+  background: rgba(255, 221, 137, 0.28);
+}
 
 /* ============================================
    WINDOW: RÉALISATIONS (File Explorer)
@@ -3755,6 +3958,11 @@ button:focus-visible, input:focus-visible { outline-offset: 0; }
   .editor-code { font-size:0.7rem; padding:0.6rem; line-height:1.6; }
   .code-line { gap:0.5rem; }
   .code-line::before { min-width:2em; font-size:0.65rem; }
+  .apropos-game-hud { margin: 6px 6px 0; padding: 6px 8px; gap: 6px; }
+  .apropos-hud-title { font-size: 0.62rem; letter-spacing: 0.7px; }
+  .apropos-hud-badges { gap: 4px; }
+  .apropos-hud-badge { font-size: 0.54rem; padding: 2px 6px; }
+  .apropos-editor-root { margin: 6px; border-radius: 10px; }
 
   /* ── Réalisations explorer mobile ── */
   .explorer-content { flex-direction:column; }
@@ -4982,23 +5190,33 @@ function getWindowContent(id) {
       icon: '📝',
       width: 780, height: 550,
       content: `
-        <div class="editor-container apropos-editor-root" tabindex="0">
-          <div class="editor-sidebar">
-            <div class="editor-sidebar-icon active" data-action="files" title="Fichiers">📄</div>
-            <div class="editor-sidebar-icon" data-action="search" title="Recherche">🔍</div>
-            <div class="editor-sidebar-icon" data-action="swap" title="Changer de fichier">🔀</div>
-            <div class="editor-sidebar-icon" data-action="edit" title="Mode édition">🧩</div>
-          </div>
-          <div class="editor-main">
-            <div class="editor-tabs" id="aproposTabs"></div>
-            <div class="editor-toolbar">
-              <input id="aproposSearch" class="editor-search" type="text" placeholder="Rechercher dans le fichier... (Ctrl+F)">
-              <button class="editor-btn" id="aproposPrev" title="Résultat précédent">↑</button>
-              <button class="editor-btn" id="aproposNext" title="Résultat suivant">↓</button>
-              <button class="editor-btn" id="aproposEditToggle" title="Activer/Désactiver l'édition">Modifier</button>
-              <span class="editor-status" id="aproposStatus">Prêt</span>
+        <div class="apropos-game-shell">
+          <div class="apropos-game-hud" aria-hidden="true">
+            <div class="apropos-hud-title">MISSION BOARD // BTS SIO SISR</div>
+            <div class="apropos-hud-badges">
+              <span class="apropos-hud-badge">HERO: AYMEN</span>
+              <span class="apropos-hud-badge">GUILD: KONVERGENCE</span>
+              <span class="apropos-hud-badge">CLASS: SISR</span>
             </div>
-            <div class="editor-code" id="aproposCode"></div>
+          </div>
+          <div class="editor-container apropos-editor-root" tabindex="0">
+            <div class="editor-sidebar">
+              <div class="editor-sidebar-icon active" data-action="files" title="Quetes">📜</div>
+              <div class="editor-sidebar-icon" data-action="search" title="Scanner">🔮</div>
+              <div class="editor-sidebar-icon" data-action="swap" title="Changer de quete">🗺️</div>
+              <div class="editor-sidebar-icon" data-action="edit" title="Mode forge">⚒️</div>
+            </div>
+            <div class="editor-main">
+              <div class="editor-tabs" id="aproposTabs"></div>
+              <div class="editor-toolbar">
+                <input id="aproposSearch" class="editor-search" type="text" placeholder="Scanner les quetes... (Ctrl+F)">
+                <button class="editor-btn" id="aproposPrev" title="Resultat precedent">↑</button>
+                <button class="editor-btn" id="aproposNext" title="Resultat suivant">↓</button>
+                <button class="editor-btn" id="aproposEditToggle" title="Activer/Desactiver l edition">Forge</button>
+                <span class="editor-status" id="aproposStatus">Mission prete</span>
+              </div>
+              <div class="editor-code" id="aproposCode"></div>
+            </div>
           </div>
         </div>
       `
@@ -7589,7 +7807,7 @@ function initAproposEditor() {
   function toggleEditMode() {
     editorState.editMode = !editorState.editMode;
     editBtn.classList.toggle('active', editorState.editMode);
-    editBtn.textContent = editorState.editMode ? 'Lecture' : 'Modifier';
+    editBtn.textContent = editorState.editMode ? 'Lecture' : 'Forge';
     renderCode();
   }
 
@@ -7625,6 +7843,8 @@ function initAproposEditor() {
 
   win.querySelectorAll('.editor-sidebar-icon').forEach(btn => {
     btn.addEventListener('click', () => {
+      win.querySelectorAll('.editor-sidebar-icon').forEach(icon => icon.classList.remove('active'));
+      btn.classList.add('active');
       const action = btn.dataset.action;
       if (action === 'search') {
         searchEl.focus();
