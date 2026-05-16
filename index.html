@@ -6560,13 +6560,7 @@ function getWindowContent(id) {
       icon: '📊',
       width: 920, height: 600,
       content: `
-        <div class="synthese-container">
-          <div class="synthese-body">
-            <div class="excel-preview" id="syntheseExcelPreview">
-              <div class="excel-preview-loading">Chargement du fichier Excel...</div>
-            </div>
-          </div>
-        </div>
+        <div class="synthese-container"></div>
       `
     },
     veille: {
@@ -6574,71 +6568,7 @@ function getWindowContent(id) {
       icon: '📡',
       width: 780, height: 560,
       content: `
-        <div class="veille-container">
-          <div class="veille-header">
-            <div class="veille-header-row">
-              <div>
-                <h2>📡 Veille technologique & Développement professionnel</h2>
-                <p>Compétence E4-C6 : Organiser son développement professionnel</p>
-              </div>
-              <div class="veille-actions">
-                <button class="doc-viewer-btn" onclick="openDocViewer('docs/Veille/TP%20Veille%20strat%C3%A9gique.odt', '📝', 'TP Veille stratégique.odt')">📂 Ouvrir le document</button>
-                <button class="doc-viewer-btn primary" onclick="downloadDoc('docs/Veille/TP%20Veille%20strat%C3%A9gique.odt', 'TP Veille stratégique.odt')">⬇️ Télécharger</button>
-              </div>
-            </div>
-          </div>
-          <div class="veille-body">
-            <div class="veille-doc-preview">
-              <div class="doc-viewer">
-                <div class="doc-viewer-toolbar">
-                  <span class="doc-viewer-title">📝 TP Veille stratégique.odt</span>
-                  <div class="doc-viewer-actions">
-                    <button class="doc-viewer-btn" onclick="openDocumentInNewTab('docs/Veille/TP%20Veille%20strat%C3%A9gique.odt', 'TP Veille stratégique.odt')">🔗 Nouvel onglet</button>
-                    <button class="doc-viewer-btn primary" onclick="downloadDoc('docs/Veille/TP%20Veille%20strat%C3%A9gique.odt', 'TP Veille stratégique.odt')">⬇️ Télécharger</button>
-                  </div>
-                </div>
-                <div class="doc-viewer-frame odt-preview-frame" id="veilleOdtPreview">
-                  <div class="odt-preview-loading">Chargement de l'aperçu du document...</div>
-                </div>
-              </div>
-            </div>
-            <div class="veille-section">
-              <div class="veille-section-title">🔍 Outils de veille</div>
-              <div class="veille-item"><strong>Feedly</strong> — Agrégateur RSS pour centraliser les flux d'actualités tech, cybersécurité et réseau.</div>
-              <div class="veille-item"><strong>Reddit</strong> — Subreddits r/sysadmin, r/networking, r/cybersecurity pour les retours d'expérience de la communauté.</div>
-              <div class="veille-item"><strong>Twitter/X</strong> — Suivi de comptes spécialisés (CERT-FR, @TheHackersNews, etc.).</div>
-              <div class="veille-item"><strong>Newsletters</strong> — TLDR Sec, Bleeping Computer, The Register.</div>
-            </div>
-            <div class="veille-section">
-              <div class="veille-section-title">🎓 Autoformation & Certifications</div>
-              <div class="veille-item"><strong>HackTheBox</strong> — Plateforme de challenges de cybersécurité pour pratiquer le pentest et la forensics.</div>
-              <div class="veille-item"><strong>TryHackMe</strong> — Parcours guidés de sécurité offensive et défensive, du débutant à l'avancé.</div>
-              <div class="veille-item"><strong>Cisco Networking Academy</strong> — Modules complémentaires CCNA, cybersécurité.</div>
-              <div class="veille-item"><strong>Documentation officielle</strong> — Microsoft Learn (Windows Server, AD, PowerShell), documentation Debian/Ubuntu.</div>
-            </div>
-            <div class="veille-section">
-              <div class="veille-section-title">📰 Thèmes de veille suivis</div>
-              <div class="veille-tags">
-                <span class="veille-tag">Cybersécurité</span>
-                <span class="veille-tag">Ransomware</span>
-                <span class="veille-tag">Vulnérabilités CVE</span>
-                <span class="veille-tag">Zero Trust</span>
-                <span class="veille-tag">Cloud & Virtualisation</span>
-                <span class="veille-tag">Active Directory</span>
-                <span class="veille-tag">Réseau & SDN</span>
-                <span class="veille-tag">DevOps / IaC</span>
-                <span class="veille-tag">RGPD</span>
-                <span class="veille-tag">IA & Sécurité</span>
-              </div>
-            </div>
-            <div class="veille-section">
-              <div class="veille-section-title">📈 Progression & Objectifs</div>
-              <div class="veille-item"><strong>2024</strong> — Mise en place d'une routine de veille quotidienne (Feedly + Reddit).</div>
-              <div class="veille-item"><strong>2025</strong> — Pratique régulière sur HackTheBox et TryHackMe. Obtention de badges et montée en compétence en pentest.</div>
-              <div class="veille-item"><strong>2026</strong> — Approfondissement Active Directory avancé, préparation certifications (CCNA, CompTIA Security+).</div>
-            </div>
-          </div>
-        </div>
+        <div class="veille-container"></div>
       `
     },
     attestations: {
@@ -8506,8 +8436,6 @@ function openWindow(id) {
   if (id === 'scolarite') initScolarite();
   if (id === 'monparcours') initMonParcours();
   if (id === 'cv') initCvViewer();
-  if (id === 'synthese') initSynthese();
-  if (id === 'veille') initVeilleDocPreview();
 
   // Click to focus
   win.addEventListener('mousedown', () => focusWindow(id));
