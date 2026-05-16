@@ -2807,6 +2807,35 @@ button:focus-visible, input:focus-visible { outline-offset: 0; }
 .synthese-body {
   flex:1; overflow-y:auto; padding:0;
 }
+.excel-preview {
+  height: 100%;
+  overflow: auto;
+  padding: 14px;
+}
+.excel-preview-loading,
+.excel-preview-error {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+.excel-preview table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.75rem;
+  background: rgba(0,0,0,0.15);
+}
+.excel-preview th,
+.excel-preview td {
+  border: 1px solid var(--border);
+  padding: 6px 8px;
+  color: var(--text);
+}
+.excel-preview th {
+  position: sticky;
+  top: 0;
+  background: var(--bg-window);
+  color: var(--primary);
+  z-index: 1;
+}
 .synthese-doc-viewer {
   height: 100%;
   display: flex;
@@ -6532,40 +6561,9 @@ function getWindowContent(id) {
       width: 920, height: 600,
       content: `
         <div class="synthese-container">
-          <div class="synthese-header">
-            <div>
-              <h2>📊 Tableau de synthèse — Épreuve E4</h2>
-              <div class="synthese-header-subtitle">Bloc « Support et mise à disposition de services informatiques »</div>
-            </div>
-            <div class="synthese-actions">
-              <button class="doc-viewer-btn" onclick="openDocViewer('docs/Synth%C3%A8se%20E4/BTS%20SIO%20Fiche%20r%C3%A9alisation.xlsx', '📊', 'BTS SIO Fiche réalisation.xlsx')">📂 Ouvrir Excel</button>
-              <button class="doc-viewer-btn primary" onclick="downloadDoc('docs/Synth%C3%A8se%20E4/BTS%20SIO%20Fiche%20r%C3%A9alisation.xlsx', 'BTS SIO Fiche réalisation.xlsx')">⬇️ Télécharger</button>
-            </div>
-          </div>
           <div class="synthese-body">
-            <div class="doc-viewer synthese-doc-viewer">
-              <div class="doc-viewer-toolbar">
-                <span class="doc-viewer-title">📊 BTS SIO Fiche réalisation.xlsx</span>
-                <div class="doc-viewer-actions">
-                  <button class="doc-viewer-btn" onclick="openDocumentInNewTab('docs/Synth%C3%A8se%20E4/BTS%20SIO%20Fiche%20r%C3%A9alisation.xlsx', 'BTS SIO Fiche réalisation.xlsx')">🔗 Nouvel onglet</button>
-                  <button class="doc-viewer-btn primary" onclick="downloadDoc('docs/Synth%C3%A8se%20E4/BTS%20SIO%20Fiche%20r%C3%A9alisation.xlsx', 'BTS SIO Fiche réalisation.xlsx')">⬇️ Télécharger</button>
-                </div>
-              </div>
-              <iframe class="doc-viewer-frame" id="syntheseExcelFrame" title="BTS SIO Fiche réalisation.xlsx"></iframe>
-              <div class="doc-viewer-fallback" id="syntheseExcelFallback" style="display:none;">
-                <div class="doc-viewer-fallback-icon">📊</div>
-                <div class="doc-viewer-fallback-title">BTS SIO Fiche réalisation.xlsx</div>
-                <div class="doc-viewer-fallback-text">Impossible d'afficher l'aperçu Excel ici.<br>Utilisez l'ouverture dans un nouvel onglet ou téléchargez le fichier.</div>
-                <button class="doc-viewer-btn primary" onclick="openDocumentInNewTab('docs/Synth%C3%A8se%20E4/BTS%20SIO%20Fiche%20r%C3%A9alisation.xlsx', 'BTS SIO Fiche réalisation.xlsx')" style="margin-top:0.5rem;">🔗 Ouvrir dans un nouvel onglet</button>
-              </div>
-            </div>
-          </div>
-          <div class="synthese-legend">
-            <div class="synthese-legend-item"><span class="synthese-status-dot" style="background:var(--accent-green)"></span> Terminé</div>
-            <div class="synthese-legend-item"><span class="synthese-status-dot" style="background:var(--accent-yellow)"></span> En cours</div>
-            <div class="synthese-legend-item"><span class="synthese-status-dot" style="background:var(--text-muted)"></span> Planifié</div>
-            <div class="synthese-legend-item" style="margin-left:auto;">
-              <strong>C1</strong>=Patrimoine &nbsp;<strong>C2</strong>=Incidents &nbsp;<strong>C3</strong>=Présence en ligne &nbsp;<strong>C4</strong>=Mode projet &nbsp;<strong>C5</strong>=Mise à dispo &nbsp;<strong>C6</strong>=Dév. pro.
+            <div class="excel-preview" id="syntheseExcelPreview">
+              <div class="excel-preview-loading">Chargement du fichier Excel...</div>
             </div>
           </div>
         </div>
@@ -7201,6 +7199,21 @@ function ensureJsZip() {
     document.head.appendChild(script);
   });
   return jsZipPromise;
+}
+
+let xlsxPromise = null;
+
+function ensureXlsx() {
+  if (window.XLSX) return Promise.resolve();
+  if (xlsxPromise) return xlsxPromise;
+  xlsxPromise = new Promise((resolve, reject) => {
+    const script = document.createElement('script');
+    script.src = 'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js';
+    script.onload = () => resolve();
+    script.onerror = () => reject(new Error('Impossible de charger XLSX'));
+    document.head.appendChild(script);
+  });
+  return xlsxPromise;
 }
 
 function escapeHtml(text) {
@@ -8015,34 +8028,35 @@ function initCvViewer() {
 // TABLEAU DE SYNTHÈSE E4
 // ============================
 function initSynthese() {
-  const excelFrame = document.getElementById('syntheseExcelFrame');
-  const excelFallback = document.getElementById('syntheseExcelFallback');
-  if (excelFrame && excelFallback) {
-    initOfficeViewerFrame(
-      excelFrame,
-      excelFallback,
-      'docs/Synth%C3%A8se%20E4/BTS%20SIO%20Fiche%20r%C3%A9alisation.xlsx'
-    );
-    return;
+  renderExcelPreview(
+    'docs/Synth%C3%A8se%20E4/BTS%20SIO%20Fiche%20r%C3%A9alisation.xlsx',
+    'syntheseExcelPreview'
+  );
+}
+
+async function renderExcelPreview(fileUrl, containerId) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  container.innerHTML = '<div class="excel-preview-loading">Chargement du fichier Excel...</div>';
+
+  try {
+    await ensureXlsx();
+    const resolvedUrl = new URL(fileUrl, window.location.href).href;
+    const response = await fetch(resolvedUrl);
+    if (!response.ok) throw new Error('Erreur réseau');
+    const buffer = await response.arrayBuffer();
+    const workbook = window.XLSX.read(buffer, { type: 'array' });
+    const sheetName = workbook.SheetNames[0];
+    if (!sheetName) throw new Error('Feuille introuvable');
+    const sheet = workbook.Sheets[sheetName];
+    const html = window.XLSX.utils.sheet_to_html(sheet, { editable: false });
+    container.innerHTML = html;
+  } catch (error) {
+    const isFile = window.location.protocol === 'file:';
+    const hint = isFile ? ' Ouvre le portfolio via un serveur local ou en ligne.' : '';
+    container.innerHTML = `<div class="excel-preview-error">Impossible de charger le fichier Excel.${hint}</div>`;
+    showNotification('⚠️ Aperçu Excel', 'Impossible de charger la prévisualisation du fichier Excel.');
   }
-  // BTS: Cette fonction construit automatiquement le tableau "Synthèse E4" depuis projetsData.
-  const tbody = document.getElementById('syntheseBody');
-  if (!tbody) return;
-  const contextLabels = { ecole: '🎓 École', entreprise: '🏢 Entreprise', perso: '🏠 Personnel' };
-  const statusColors = { done: 'var(--accent-green)', progress: 'var(--accent-yellow)', planned: 'var(--text-muted)' };
-  const statusLabels = { done: 'Terminé', progress: 'En cours', planned: 'Planifié' };
-  let html = '';
-  projetsData.forEach(p => {
-    const comps = (p.competences || []).map(c => `<span class="synthese-comp-badge" title="${competencesE4[c]}">${c}</span>`).join(' ');
-    html += `<tr>
-      <td><strong>${p.icon} ${p.title}</strong></td>
-      <td>${contextLabels[p.context] || p.context}</td>
-      <td>${comps}</td>
-      <td>${p.date}</td>
-      <td><span class="synthese-status-dot" style="background:${statusColors[p.status]}"></span> ${statusLabels[p.status]}</td>
-    </tr>`;
-  });
-  tbody.innerHTML = html;
 }
 
 function initOfficeViewerFrame(iframe, fallback, fileUrl) {
